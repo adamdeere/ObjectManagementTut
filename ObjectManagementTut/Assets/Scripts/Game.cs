@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
+using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class Game : PersistableObject
 {
@@ -15,7 +17,7 @@ public class Game : PersistableObject
     [SerializeField] private PersistentStorage storage;
    
     private string _savePath;
-
+    public int levelCount;
     public static int SaveVersion { get; } = 1;
     public float CreationSpeed { get; set; }
     
@@ -25,6 +27,20 @@ public class Game : PersistableObject
     public void Start()
     { 
         _ShapeList = new List<Shape>();
+        if (Application.isEditor) 
+        {
+           
+            // for (int i = 0; i < SceneManager.sceneCount; i++) 
+            // {
+            //     Scene loadedScene = SceneManager.GetSceneAt(i);
+            //     if (loadedScene.name.Contains("Two")) 
+            //     {
+            //         SceneManager.SetActiveScene(loadedScene);
+            //         return;
+            //     }
+            // }
+        }
+        StartCoroutine(LoadLevel(levelCount));
     }
 
     public void Update () 
@@ -42,16 +58,26 @@ public class Game : PersistableObject
         {
             storage.Save(this, SaveVersion);
         }
+        else if (Input.GetKeyDown(destroyKey))
+        {
+            DestroyShape();
+        }
         else if (Input.GetKeyDown(loadGame)) 
         {
             NewGame();
             storage.Load(this);
         }
-        else if (Input.GetKeyDown(destroyKey))
+        else 
         {
-            DestroyShape();
+            for (int i = 1; i <= levelCount; i++) 
+            {
+                if (Input.GetKeyDown(KeyCode.Alpha0 + i)) 
+                {
+                    StartCoroutine(LoadLevel(i));
+                    return;
+                }
+            }
         }
-        
 
         #endregion
         
@@ -70,6 +96,14 @@ public class Game : PersistableObject
         
     }
 
+    
+    IEnumerator LoadLevel (int levelIndex) 
+    {
+        enabled = false;
+        yield return SceneManager.LoadSceneAsync(levelIndex, LoadSceneMode.Additive);
+        SceneManager.SetActiveScene(SceneManager.GetSceneByBuildIndex(levelIndex));
+        enabled = true;
+    }
     private void CreateShape ()
     {
         var instance = shapeFactory.GetRandom();
