@@ -33,15 +33,23 @@ public class GameDataWriter
         _writer.Write(value.y);
         _writer.Write(value.z);
     }
+    public void Write (Color value) {
+        _writer.Write(value.r);
+        _writer.Write(value.g);
+        _writer.Write(value.b);
+        _writer.Write(value.a);
+    }
 }
 
 public class GameDataReader
 {
     private readonly BinaryReader _reader;
+    public int Version { get; }
     
-    public GameDataReader (BinaryReader reader) 
+    public GameDataReader (BinaryReader reader, int version) 
     {
         _reader = reader;
+        Version = version;
     }
     
     public float ReadFloat ()
@@ -73,6 +81,14 @@ public class GameDataReader
         value.y = _reader.ReadSingle();
         value.z = _reader.ReadSingle();
 
+        return value;
+    }
+    public Color ReadColor () {
+        Color value;
+        value.r = _reader.ReadSingle();
+        value.g = _reader.ReadSingle();
+        value.b = _reader.ReadSingle();
+        value.a = _reader.ReadSingle();
         return value;
     }
 }
