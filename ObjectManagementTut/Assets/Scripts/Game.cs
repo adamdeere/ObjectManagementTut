@@ -8,7 +8,7 @@ public class Game : PersistableObject
     public KeyCode createKey = KeyCode.C;
     public KeyCode newGameKey = KeyCode.N;
     public KeyCode saveGame = KeyCode.S;
-    
+    public KeyCode destroyKey = KeyCode.X;
     [FormerlySerializedAs("LoadGame")] public KeyCode loadGame = KeyCode.L;
     private List<Shape> _ShapeList;
 
@@ -17,7 +17,10 @@ public class Game : PersistableObject
     private string _savePath;
 
     public static int SaveVersion { get; } = 1;
-
+    public float CreationSpeed { get; set; }
+    
+    public float DestructionSpeed { get; set; }
+    float _creationProgress, _destructionProgress;
     // Start is called before the first frame update
     public void Start()
     { 
@@ -26,26 +29,48 @@ public class Game : PersistableObject
 
     public void Update () 
     {
+        #region all keyboard inputs
         if (Input.GetKeyDown(createKey)) 
         {
-           CreateObject();
+            CreateShape();
         }
         else if (Input.GetKeyDown(newGameKey)) 
         {
             NewGame();
         }
-        if (Input.GetKeyDown(saveGame)) 
+        else if (Input.GetKeyDown(saveGame)) 
         {
-           storage.Save(this, SaveVersion);
+            storage.Save(this, SaveVersion);
         }
         else if (Input.GetKeyDown(loadGame)) 
         {
             NewGame();
             storage.Load(this);
         }
+        else if (Input.GetKeyDown(destroyKey))
+        {
+            DestroyShape();
+        }
+        
+
+        #endregion
+        
+        _creationProgress += Time.deltaTime * CreationSpeed;
+        while (_creationProgress >= 1f) 
+        {
+            _creationProgress -= 1f;
+            CreateShape();
+        }
+        _destructionProgress += Time.deltaTime * DestructionSpeed;
+        while (_destructionProgress >= 1f) 
+        {
+            _destructionProgress -= 1f;
+            DestroyShape();
+        }
+        
     }
 
-    private void CreateObject ()
+    private void CreateShape ()
     {
         var instance = shapeFactory.GetRandom();
         var t = instance.transform;
@@ -62,7 +87,8 @@ public class Game : PersistableObject
     {
         foreach (var item in _ShapeList)
         {
-            Destroy(item.gameObject);
+            
+            shapeFactory.Reclaim(item);
         }
         _ShapeList.Clear();
     }
@@ -94,6 +120,16 @@ public class Game : PersistableObject
             instance.Load(reader);
             _ShapeList.Add(instance);
         }
+    }
+    void DestroyShape ()
+    {
+        if (_ShapeList.Count <= 0) return;
+        
+        var index = Random.Range(0, _ShapeList.Count);
+        shapeFactory.Reclaim(_ShapeList[index]);
+        var lastIndex = _ShapeList.Count - 1;
+        _ShapeList[index] = _ShapeList[lastIndex];
+        _ShapeList.RemoveAt(lastIndex);
     }
 }
 
