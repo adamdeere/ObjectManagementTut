@@ -4,21 +4,24 @@ using UnityEngine.Serialization;
 
 public class Game : PersistableObject
 {
-    [SerializeField] private PersistableObject prefab;
+    [SerializeField] private ShapeFactory shapeFactory;
     public KeyCode createKey = KeyCode.C;
     public KeyCode newGameKey = KeyCode.N;
     public KeyCode saveGame = KeyCode.S;
     
     [FormerlySerializedAs("LoadGame")] public KeyCode loadGame = KeyCode.L;
-    private List<PersistableObject> _objectList;
+    private List<Shape> _ShapeList;
 
     [SerializeField] private PersistentStorage storage;
    
     private string _savePath;
+
+    public static int SaveVersion { get; } = 1;
+
     // Start is called before the first frame update
     public void Start()
     { 
-        _objectList = new List<PersistableObject>();
+        _ShapeList = new List<Shape>();
     }
 
     public void Update () 
@@ -42,42 +45,53 @@ public class Game : PersistableObject
         }
     }
 
-    private void CreateObject () 
+    private void CreateObject ()
     {
-        var o = Instantiate(prefab);
+        var o = shapeFactory.GetRandom();
         var t = o.transform;
         t.localPosition = Random.insideUnitSphere * 5f;
         t.localRotation = Random.rotation;
         t.localScale = Vector3.one * Random.Range(0.1f, 1f);
         
-        _objectList.Add(o);
+        _ShapeList.Add(o);
     }
 
     private void NewGame()
     {
-        foreach (var item in _objectList)
+        foreach (var item in _ShapeList)
         {
             Destroy(item.gameObject);
         }
-        _objectList.Clear();
+        _ShapeList.Clear();
     }
     
     public override void Save (GameDataWriter writer) 
     {
-        writer.Write(_objectList.Count);
-        for (int i = 0; i < _objectList.Count; i++) 
+        writer.Write(-SaveVersion);
+        writer.Write(_ShapeList.Count);
+        for (int i = 0; i < _ShapeList.Count; i++) 
         {
-            _objectList[i].Save(writer);
+            writer.Write(_ShapeList[i].ShapeId);
+            writer.Write(_ShapeList[i].MaterialId);
+            _ShapeList[i].Save(writer);
         }
     }
     public override void Load (GameDataReader reader) 
     {
-        int count = reader.ReadInt();
-        for (int i = 0; i < count; i++) 
+        int version = -reader.ReadInt();
+        int count = version <= 0 ? -version : reader.ReadInt();
+        if (version > SaveVersion) 
         {
-            PersistableObject o = Instantiate(prefab);
-            o.Load(reader);
-            _objectList.Add(o);
+            Debug.Log("Unsupported future save version " + version);
+            return;
+        }
+        for (int i = 0; i < count; i++)
+        {
+            int shapeId = version > 0 ? reader.ReadInt() : 0;
+            int materialId = version > 0 ? reader.ReadInt() : 0;
+            Shape instance = shapeFactory.Get(shapeId, materialId);
+            instance.Load(reader);
+            _ShapeList.Add(instance);
         }
     }
 }
