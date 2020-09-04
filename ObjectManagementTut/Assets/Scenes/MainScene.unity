@@ -413,7 +413,9 @@ MonoBehaviour:
   destroyKey: 120
   loadGame: 108
   storage: {fileID: 1776408717}
-  levelCount: 3
+  creationSpeedSlider: {fileID: 92777848}
+  destructionSpeedSlider: {fileID: 456878023}
+  levelCount: 4
   reseedOnLoad: 1
 --- !u!4 &180250720
 Transform:

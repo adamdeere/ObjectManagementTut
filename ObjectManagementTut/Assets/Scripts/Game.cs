@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.SceneManagement;
 using System.Collections;
 using Random = UnityEngine.Random;
-
+using UnityEngine.UI;
 public class Game : PersistableObject
 {
     [SerializeField] private ShapeFactory shapeFactory;
@@ -16,17 +17,19 @@ public class Game : PersistableObject
     private List<Shape> _shapeList;
 
     [SerializeField] private PersistentStorage storage;
-  
+    [SerializeField] Slider creationSpeedSlider;
+    [SerializeField] Slider destructionSpeedSlider;
     private string _savePath;
     public int levelCount;
     public static int SaveVersion { get; } = 3;
     public float CreationSpeed { get; set; }
+  
     private int _loadedLevelBuildIndex;
     public float DestructionSpeed { get; set; }
     float _creationProgress, _destructionProgress;
     private Random.State _mainRandomState;
 
-
+   
 
     [FormerlySerializedAs("ReseedOnLoad")] [SerializeField] private bool reseedOnLoad;
 
@@ -35,21 +38,7 @@ public class Game : PersistableObject
     { 
         _mainRandomState = Random.state;
         _shapeList = new List<Shape>();
-        // if (Application.isEditor) 
-        // {
-        //    
-        //     for (int i = 0; i < SceneManager.sceneCount; i++) 
-        //     {
-        //         Scene loadedScene = SceneManager.GetSceneAt(i);
-        //         if (loadedScene.name.Contains("One")) 
-        //         {
-        //             SceneManager.SetActiveScene(loadedScene);
-        //             _loadedLevelBuildIndex = loadedScene.buildIndex;
-        //             return;
-        //         }
-        //     }
-        // }
-
+      
         NewGame();
         StartCoroutine(LoadLevel(levelCount));
     }
@@ -93,7 +82,10 @@ public class Game : PersistableObject
         }
 
         #endregion
-        
+    }
+
+    private void FixedUpdate()
+    {
         _creationProgress += Time.deltaTime * CreationSpeed;
         while (_creationProgress >= 1f) 
         {
@@ -107,6 +99,7 @@ public class Game : PersistableObject
             DestroyShape();
         }
     }
+
     private void CreateShape ()
     {
         var instance = shapeFactory.GetRandom();
@@ -124,6 +117,8 @@ public class Game : PersistableObject
         int seed = Random.Range(0, int.MaxValue);
         _mainRandomState = Random.state;
         Random.InitState(seed);
+        creationSpeedSlider.value = CreationSpeed = 0;
+        destructionSpeedSlider.value = DestructionSpeed = 0;
         foreach (var item in _shapeList)
         { 
             shapeFactory.Reclaim(item);
@@ -135,6 +130,10 @@ public class Game : PersistableObject
     {
         writer.Write(_shapeList.Count);
         writer.Write(Random.state);
+        writer.Write(CreationSpeed);
+        writer.Write(_creationProgress);
+        writer.Write(DestructionSpeed);
+        writer.Write(_destructionProgress);
         writer.Write(_loadedLevelBuildIndex);
         GameLevel.Current.Save(writer);
         foreach (var t in _shapeList)
@@ -191,6 +190,10 @@ public class Game : PersistableObject
             {
                 Random.state = state;
             }
+            creationSpeedSlider.value = CreationSpeed = reader.ReadFloat();
+            _creationProgress = reader.ReadFloat();
+            destructionSpeedSlider.value = DestructionSpeed = reader.ReadFloat();
+            _destructionProgress = reader.ReadFloat();
         }
 
         yield return LoadLevel(version < 2 ? 1 : reader.ReadInt());
