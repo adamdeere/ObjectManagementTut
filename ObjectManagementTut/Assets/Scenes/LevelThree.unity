@@ -156,6 +156,7 @@ MonoBehaviour:
   - {fileID: 8789263653622043572}
   - {fileID: 3205300851021461305}
   - {fileID: 7272635840114278458}
+  sequential: 1
 --- !u!4 &636158437
 Transform:
   m_ObjectHideFlags: 0
@@ -179,7 +180,17 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 561902813624644176, guid: de89e82511917491682c6eed147078bc,
         type: 3}
+      propertyPath: persistentObjects.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 561902813624644176, guid: de89e82511917491682c6eed147078bc,
+        type: 3}
       propertyPath: spawnZone
+      value: 
+      objectReference: {fileID: 636158436}
+    - target: {fileID: 561902813624644176, guid: de89e82511917491682c6eed147078bc,
+        type: 3}
+      propertyPath: persistentObjects.Array.data[0]
       value: 
       objectReference: {fileID: 636158436}
     - target: {fileID: 1267215409277567233, guid: de89e82511917491682c6eed147078bc,

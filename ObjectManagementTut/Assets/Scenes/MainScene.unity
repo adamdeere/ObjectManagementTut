@@ -414,6 +414,7 @@ MonoBehaviour:
   loadGame: 108
   storage: {fileID: 1776408717}
   levelCount: 3
+  reseedOnLoad: 1
 --- !u!4 &180250720
 Transform:
   m_ObjectHideFlags: 0

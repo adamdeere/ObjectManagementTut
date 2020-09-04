@@ -3,7 +3,6 @@ using UnityEngine;
 public class GameDataWriter 
 {
     BinaryWriter _writer;
-    
     public GameDataWriter (BinaryWriter writer) 
     {
         _writer = writer;
@@ -33,14 +32,18 @@ public class GameDataWriter
         _writer.Write(value.y);
         _writer.Write(value.z);
     }
-    public void Write (Color value) {
+    public void Write(Random.State value) 
+    {
+        _writer.Write(JsonUtility.ToJson(value));
+    }
+    public void Write (Color value) 
+    {
         _writer.Write(value.r);
         _writer.Write(value.g);
         _writer.Write(value.b);
         _writer.Write(value.a);
     }
 }
-
 public class GameDataReader
 {
     private readonly BinaryReader _reader;
@@ -51,11 +54,13 @@ public class GameDataReader
         _reader = reader;
         Version = version;
     }
-    
+    public Random.State ReadRandomState ()
+    {
+        return JsonUtility.FromJson<Random.State>(_reader.ReadString());
+    }
     public float ReadFloat ()
     {
         return _reader.ReadSingle();
-       
     }
 
     public int ReadInt ()
