@@ -18,9 +18,9 @@ public class Game : PersistableObject
    
     private string _savePath;
     public int levelCount;
-    public static int SaveVersion { get; } = 1;
+    public static int SaveVersion { get; } = 2;
     public float CreationSpeed { get; set; }
-    
+    private int _loadedLevelBuildIndex;
     public float DestructionSpeed { get; set; }
     float _creationProgress, _destructionProgress;
     // Start is called before the first frame update
@@ -30,15 +30,16 @@ public class Game : PersistableObject
         if (Application.isEditor) 
         {
            
-            // for (int i = 0; i < SceneManager.sceneCount; i++) 
-            // {
-            //     Scene loadedScene = SceneManager.GetSceneAt(i);
-            //     if (loadedScene.name.Contains("Two")) 
-            //     {
-            //         SceneManager.SetActiveScene(loadedScene);
-            //         return;
-            //     }
-            // }
+            for (int i = 0; i < SceneManager.sceneCount; i++) 
+            {
+                Scene loadedScene = SceneManager.GetSceneAt(i);
+                if (loadedScene.name.Contains("Two")) 
+                {
+                    SceneManager.SetActiveScene(loadedScene);
+                    _loadedLevelBuildIndex = loadedScene.buildIndex;
+                    return;
+                }
+            }
         }
         StartCoroutine(LoadLevel(levelCount));
     }
@@ -73,6 +74,7 @@ public class Game : PersistableObject
             {
                 if (Input.GetKeyDown(KeyCode.Alpha0 + i)) 
                 {
+                    NewGame();
                     StartCoroutine(LoadLevel(i));
                     return;
                 }
@@ -100,8 +102,12 @@ public class Game : PersistableObject
     IEnumerator LoadLevel (int levelIndex) 
     {
         enabled = false;
+        if (_loadedLevelBuildIndex > 0) 
+            yield return SceneManager.UnloadSceneAsync(_loadedLevelBuildIndex);
+        
         yield return SceneManager.LoadSceneAsync(levelIndex, LoadSceneMode.Additive);
         SceneManager.SetActiveScene(SceneManager.GetSceneByBuildIndex(levelIndex));
+        _loadedLevelBuildIndex = levelIndex;
         enabled = true;
     }
     private void CreateShape ()
@@ -111,9 +117,7 @@ public class Game : PersistableObject
         t.localPosition = Random.insideUnitSphere * 5f;
         t.localRotation = Random.rotation;
         t.localScale = Vector3.one * Random.Range(0.1f, 1f);
-        instance.SetColour(Random.ColorHSV(hueMin: 0f, hueMax: 1f, saturationMin: 0.5f, saturationMax: 1f,
-            valueMin: 0.25f, valueMax: 1f, alphaMin: 1f, alphaMax: 1f
-        ));
+        instance.SetColour(Random.ColorHSV(hueMin: 0f, hueMax: 1f, saturationMin: 0.5f, saturationMax: 1f,  valueMin: 0.25f, valueMax: 1f, alphaMin: 1f, alphaMax: 1f));
         _ShapeList.Add(instance);
     }
 
@@ -130,6 +134,7 @@ public class Game : PersistableObject
     public override void Save (GameDataWriter writer) 
     {
         writer.Write(_ShapeList.Count);
+        writer.Write(_loadedLevelBuildIndex);
         for (int i = 0; i < _ShapeList.Count; i++) 
         {
             writer.Write(_ShapeList[i].ShapeId);
@@ -141,6 +146,7 @@ public class Game : PersistableObject
     {
         int version = reader.Version;
         int count = version <= 0 ? -version : reader.ReadInt();
+        StartCoroutine(LoadLevel(version < 2 ? 1 : reader.ReadInt()));
         if (version > SaveVersion) 
         {
             Debug.Log("Unsupported future save version " + version);

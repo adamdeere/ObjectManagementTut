@@ -34,14 +34,16 @@ public class Shape : PersistableObject
     public void SetColour(Color colour)
     {
         _color = colour;
-        if (_sharedPropertyBlock == null) {
+        if (_sharedPropertyBlock == null) 
+        {
             _sharedPropertyBlock = new MaterialPropertyBlock();
         }
         _sharedPropertyBlock.SetColor(_colorPropertyId, _color);
         GetComponent<MeshRenderer>().SetPropertyBlock(_sharedPropertyBlock);
     }
     
-    public override void Save (GameDataWriter writer) {
+    public override void Save (GameDataWriter writer)
+    {
         base.Save(writer);
         writer.Write(_color);
     }
