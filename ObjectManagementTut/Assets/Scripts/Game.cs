@@ -21,7 +21,7 @@ public class Game : PersistableObject
     [SerializeField] Slider destructionSpeedSlider;
     private string _savePath;
     public int levelCount;
-    public static int SaveVersion { get; } = 3;
+    public static int SaveVersion { get; } = 4;
     public float CreationSpeed { get; set; }
   
     private int _loadedLevelBuildIndex;
@@ -86,6 +86,10 @@ public class Game : PersistableObject
 
     private void FixedUpdate()
     {
+        foreach (var t in _shapeList)
+        {
+            t.GameUpdate();
+        }
         _creationProgress += Time.deltaTime * CreationSpeed;
         while (_creationProgress >= 1f) 
         {
@@ -103,11 +107,7 @@ public class Game : PersistableObject
     private void CreateShape ()
     {
         var instance = shapeFactory.GetRandom();
-        var t = instance.transform;
-        t.localPosition = GameLevel.Current.SpawnPoint;
-        t.localRotation = Random.rotation;
-        t.localScale = Vector3.one * Random.Range(0.1f, 1f);
-        instance.SetColour(Random.ColorHSV(hueMin: 0f, hueMax: 1f, saturationMin: 0.5f, saturationMax: 1f,  valueMin: 0.25f, valueMax: 1f, alphaMin: 1f, alphaMax: 1f));
+        GameLevel.Current.ConfigureSpawn(instance);
         _shapeList.Add(instance);
     }
 
@@ -153,7 +153,6 @@ public class Game : PersistableObject
             return;
         }
         StartCoroutine(LoadGame(reader));
-       
     }
     void DestroyShape ()
     {
