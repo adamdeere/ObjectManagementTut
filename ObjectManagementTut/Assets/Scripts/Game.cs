@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.SceneManagement;
@@ -8,14 +7,14 @@ using Random = UnityEngine.Random;
 
 public class Game : PersistableObject
 {
-    public static Game gameInstance;
+    public static Game GameInstance;
     [SerializeField] private ShapeFactory shapeFactory;
     public KeyCode createKey = KeyCode.C;
     public KeyCode newGameKey = KeyCode.N;
     public KeyCode saveGame = KeyCode.S;
     public KeyCode destroyKey = KeyCode.X;
     [FormerlySerializedAs("LoadGame")] public KeyCode loadGame = KeyCode.L;
-    private List<Shape> _ShapeList;
+    private List<Shape> _shapeList;
 
     [SerializeField] private PersistentStorage storage;
     public SpawnZone SpawnZoneOfLevel { get; set; }
@@ -29,22 +28,22 @@ public class Game : PersistableObject
 
     private void OnEnable()
     {
-        if (gameInstance == null)
-            gameInstance = this;
+        if (GameInstance == null)
+            GameInstance = this;
       
     }
 
     // Start is called before the first frame update
     public void Start()
     { 
-        _ShapeList = new List<Shape>();
+        _shapeList = new List<Shape>();
         if (Application.isEditor) 
         {
            
             for (int i = 0; i < SceneManager.sceneCount; i++) 
             {
                 Scene loadedScene = SceneManager.GetSceneAt(i);
-                if (loadedScene.name.Contains("Two")) 
+                if (loadedScene.name.Contains("One")) 
                 {
                     SceneManager.SetActiveScene(loadedScene);
                     _loadedLevelBuildIndex = loadedScene.buildIndex;
@@ -129,28 +128,28 @@ public class Game : PersistableObject
         t.localRotation = Random.rotation;
         t.localScale = Vector3.one * Random.Range(0.1f, 1f);
         instance.SetColour(Random.ColorHSV(hueMin: 0f, hueMax: 1f, saturationMin: 0.5f, saturationMax: 1f,  valueMin: 0.25f, valueMax: 1f, alphaMin: 1f, alphaMax: 1f));
-        _ShapeList.Add(instance);
+        _shapeList.Add(instance);
     }
 
     private void NewGame()
     {
-        foreach (var item in _ShapeList)
+        foreach (var item in _shapeList)
         {
             
             shapeFactory.Reclaim(item);
         }
-        _ShapeList.Clear();
+        _shapeList.Clear();
     }
     
     public override void Save (GameDataWriter writer) 
     {
-        writer.Write(_ShapeList.Count);
+        writer.Write(_shapeList.Count);
         writer.Write(_loadedLevelBuildIndex);
-        for (int i = 0; i < _ShapeList.Count; i++) 
+        for (int i = 0; i < _shapeList.Count; i++) 
         {
-            writer.Write(_ShapeList[i].ShapeId);
-            writer.Write(_ShapeList[i].MaterialId);
-            _ShapeList[i].Save(writer);
+            writer.Write(_shapeList[i].ShapeId);
+            writer.Write(_shapeList[i].MaterialId);
+            _shapeList[i].Save(writer);
         }
     }
     public override void Load (GameDataReader reader) 
@@ -169,18 +168,18 @@ public class Game : PersistableObject
             int materialId = version > 0 ? reader.ReadInt() : 0;
             Shape instance = shapeFactory.Get(shapeId, materialId);
             instance.Load(reader);
-            _ShapeList.Add(instance);
+            _shapeList.Add(instance);
         }
     }
     void DestroyShape ()
     {
-        if (_ShapeList.Count <= 0) return;
+        if (_shapeList.Count <= 0) return;
         
-        var index = Random.Range(0, _ShapeList.Count);
-        shapeFactory.Reclaim(_ShapeList[index]);
-        var lastIndex = _ShapeList.Count - 1;
-        _ShapeList[index] = _ShapeList[lastIndex];
-        _ShapeList.RemoveAt(lastIndex);
+        var index = Random.Range(0, _shapeList.Count);
+        shapeFactory.Reclaim(_shapeList[index]);
+        var lastIndex = _shapeList.Count - 1;
+        _shapeList[index] = _shapeList[lastIndex];
+        _shapeList.RemoveAt(lastIndex);
     }
 }
 

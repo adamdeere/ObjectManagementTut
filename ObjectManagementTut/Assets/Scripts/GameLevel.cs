@@ -6,8 +6,8 @@ public class GameLevel : MonoBehaviour
 {
     [SerializeField] private SpawnZone spawnZone;
 
-    void Start () 
+    public void Start () 
     {
-        Game.gameInstance.SpawnZoneOfLevel = spawnZone;
+        Game.GameInstance.SpawnZoneOfLevel = spawnZone;
     }
 }
