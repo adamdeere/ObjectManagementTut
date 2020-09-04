@@ -16,8 +16,6 @@ public class GameLevel : PersistableObject
             persistentObjects = new PersistableObject[0];
         
     }
-   // public Vector3 SpawnPoint => spawnZone.SpawnPoint;
-    
     public void ConfigureSpawn(Shape shape) 
     {
         spawnZone.ConfigureSpawn(shape);

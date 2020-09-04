@@ -349,6 +349,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a5cbabfad3a564fff92cf946ce298042, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  spawnMovementDirection: 0
+  spawnSpeedMin: 1.5
+  spawnSpeedMax: 2.5
   surfaceOnly: 0
 --- !u!1 &1663350176
 GameObject:
@@ -395,6 +398,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33893ab58dd084255a21b4374e73c227, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  spawnMovementDirection: 0
+  spawnSpeedMin: 0
+  spawnSpeedMax: 0
   spawnZones:
   - {fileID: 1477640199}
   - {fileID: 1919766888}
@@ -534,4 +540,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a5cbabfad3a564fff92cf946ce298042, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  spawnMovementDirection: 0
+  spawnSpeedMin: 0
+  spawnSpeedMax: 0
   surfaceOnly: 0
