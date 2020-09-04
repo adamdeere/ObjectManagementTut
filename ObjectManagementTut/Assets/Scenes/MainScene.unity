@@ -413,6 +413,7 @@ MonoBehaviour:
   destroyKey: 120
   loadGame: 108
   storage: {fileID: 1776408717}
+  spawnZone: {fileID: 0}
   levelCount: 2
 --- !u!4 &180250720
 Transform:

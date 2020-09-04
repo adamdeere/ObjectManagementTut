@@ -1,11 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.SceneManagement;
 using System.Collections;
+using Random = UnityEngine.Random;
 
 public class Game : PersistableObject
 {
+    public static Game gameInstance;
     [SerializeField] private ShapeFactory shapeFactory;
     public KeyCode createKey = KeyCode.C;
     public KeyCode newGameKey = KeyCode.N;
@@ -15,7 +18,7 @@ public class Game : PersistableObject
     private List<Shape> _ShapeList;
 
     [SerializeField] private PersistentStorage storage;
-   
+    public SpawnZone SpawnZoneOfLevel { get; set; }
     private string _savePath;
     public int levelCount;
     public static int SaveVersion { get; } = 2;
@@ -23,6 +26,14 @@ public class Game : PersistableObject
     private int _loadedLevelBuildIndex;
     public float DestructionSpeed { get; set; }
     float _creationProgress, _destructionProgress;
+
+    private void OnEnable()
+    {
+        if (gameInstance == null)
+            gameInstance = this;
+      
+    }
+
     // Start is called before the first frame update
     public void Start()
     { 
@@ -114,7 +125,7 @@ public class Game : PersistableObject
     {
         var instance = shapeFactory.GetRandom();
         var t = instance.transform;
-        t.localPosition = Random.insideUnitSphere * 5f;
+        t.localPosition = SpawnZoneOfLevel.SpawnPoint;
         t.localRotation = Random.rotation;
         t.localScale = Vector3.one * Random.Range(0.1f, 1f);
         instance.SetColour(Random.ColorHSV(hueMin: 0f, hueMax: 1f, saturationMin: 0.5f, saturationMax: 1f,  valueMin: 0.25f, valueMax: 1f, alphaMin: 1f, alphaMax: 1f));
