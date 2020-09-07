@@ -8,7 +8,7 @@ using Random = UnityEngine.Random;
 using UnityEngine.UI;
 public class Game : PersistableObject
 {
-    [SerializeField] private ShapeFactory shapeFactory;
+    [SerializeField] private ShapeFactory[] shapeFactories;
     public KeyCode createKey = KeyCode.C;
     public KeyCode newGameKey = KeyCode.N;
     public KeyCode saveGame = KeyCode.S;
@@ -32,6 +32,17 @@ public class Game : PersistableObject
    
 
     [FormerlySerializedAs("ReseedOnLoad")] [SerializeField] private bool reseedOnLoad;
+
+    private void OnEnable()
+    {
+        if (shapeFactories[0].FactoryId != 0) 
+        {
+            for (int i = 0; i < shapeFactories.Length; i++) 
+            {
+                shapeFactories[i].FactoryId = i;
+            }
+        }
+    }
 
     // Start is called before the first frame update
     public void Start()
@@ -136,6 +147,7 @@ public class Game : PersistableObject
         GameLevel.Current.Save(writer);
         foreach (var t in _shapeList)
         {
+            writer.Write(t.OriginFactory.FactoryId);
             writer.Write(t.ShapeId);
             writer.Write(t.MaterialId);
             t.Save(writer);
@@ -200,9 +212,10 @@ public class Game : PersistableObject
         }
         for (int i = 0; i < count; i++) 
         {
+            int factoryId = version >= 5 ? reader.ReadInt() : 0;
             int shapeId = version > 0 ? reader.ReadInt() : 0;
             int materialId = version > 0 ? reader.ReadInt() : 0;
-            Shape instance = shapeFactory.Get(shapeId, materialId);
+            Shape instance = shapeFactories[factoryId].Get(shapeId, materialId);
             instance.Load(reader);
             _shapeList.Add(instance);
         }
