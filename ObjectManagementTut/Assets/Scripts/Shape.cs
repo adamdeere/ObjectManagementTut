@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class Shape : PersistableObject
 {
-    private MeshRenderer _meshRenderer;
+    [SerializeField] private MeshRenderer[] _meshRenderers;
     private Color _color;
     static int _colorPropertyId = Shader.PropertyToID("_Color");
     static MaterialPropertyBlock _sharedPropertyBlock;
@@ -24,15 +24,16 @@ public class Shape : PersistableObject
         }
     } 
     
-    public void SetMaterial (Material material, int materialId) 
+    public void SetMaterial (Material material, int materialId)
     {
-        GetComponent<MeshRenderer>().material = material;
+        foreach (var t in _meshRenderers)
+        {
+            t.material = material;
+        }
+
         MaterialId = materialId;
     }
-    private void Start()
-    {
-        _meshRenderer = GetComponent<MeshRenderer>();
-    }
+   
     public void SetColour(Color colour)
     {
         _color = colour;
@@ -41,7 +42,11 @@ public class Shape : PersistableObject
             _sharedPropertyBlock = new MaterialPropertyBlock();
         }
         _sharedPropertyBlock.SetColor(_colorPropertyId, _color);
-        GetComponent<MeshRenderer>().SetPropertyBlock(_sharedPropertyBlock);
+        foreach (var t in _meshRenderers)
+        {
+            t.SetPropertyBlock(_sharedPropertyBlock);
+        }
+
     }
     
     public override void Save (GameDataWriter writer)
