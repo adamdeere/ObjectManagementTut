@@ -24,23 +24,25 @@ public struct SpawnConfiguration
     public MovementDirection movementDirection;
 
     public FloatRange speed;
+    
+    public FloatRange angularSpeed;
+
+    public FloatRange scale;
 }
 public abstract class SpawnZone : PersistableObject
 {
     
     public abstract Vector3 SpawnPoint { get; }
     [SerializeField] private SpawnConfiguration spawnConfig;
-    [SerializeField] float spawnSpeedMin, spawnSpeedMax;
-    [SerializeField] private FloatRange spawnSpeed;
    
     public virtual void ConfigureSpawn (Shape shape) 
     {
         var t = shape.transform;
         t.localPosition = SpawnPoint;
         t.localRotation = Random.rotation;
-        t.localScale = Vector3.one * Random.Range(0.1f, 1f);
+        t.localScale = Vector3.one * spawnConfig.scale.RandomValueInRange;
         shape.SetColour(Random.ColorHSV(hueMin: 0f, hueMax: 1f, saturationMin: 0.5f, saturationMax: 1f, valueMin: 0.25f, valueMax: 1f, alphaMin: 1f, alphaMax: 1f));
-        shape.AngularVelocity = Random.onUnitSphere * Random.Range(0f, 90f);
+        shape.AngularVelocity = Random.onUnitSphere * spawnConfig.angularSpeed.RandomValueInRange;
         
         Vector3 direction;
         switch (spawnConfig.movementDirection) {

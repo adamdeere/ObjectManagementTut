@@ -30,9 +30,8 @@ public class CompositeSpawnZone : SpawnZone
     public override void ConfigureSpawn (Shape shape) 
     {
         if (overrideConfig) 
-        {
             base.ConfigureSpawn(shape);
-        }
+        
         else 
         {
             int index;

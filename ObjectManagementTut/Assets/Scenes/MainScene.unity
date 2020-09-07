@@ -415,7 +415,7 @@ MonoBehaviour:
   storage: {fileID: 1776408717}
   creationSpeedSlider: {fileID: 92777848}
   destructionSpeedSlider: {fileID: 456878023}
-  levelCount: 4
+  levelCount: 3
   reseedOnLoad: 1
 --- !u!4 &180250720
 Transform:

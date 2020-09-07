@@ -354,8 +354,6 @@ MonoBehaviour:
     speed:
       min: 1.5
       max: 3.5
-  spawnSpeedMin: 1.7
-  spawnSpeedMax: 3.5
   spawnSpeed:
     min: 2
     max: 5
@@ -408,18 +406,16 @@ MonoBehaviour:
   spawnConfig:
     movementDirection: 0
     speed:
-      min: 0
-      max: 0
-  spawnSpeedMin: 0
-  spawnSpeedMax: 0
+      min: -2
+      max: -1
   spawnSpeed:
-    min: 0
-    max: 0
+    min: 1
+    max: 3
   spawnZones:
   - {fileID: 1477640199}
   - {fileID: 1919766888}
   sequential: 1
-  overrideConfig: 0
+  overrideConfig: 1
 --- !u!1 &1756507913
 GameObject:
   m_ObjectHideFlags: 0
@@ -560,8 +556,6 @@ MonoBehaviour:
     speed:
       min: 0
       max: 0
-  spawnSpeedMin: 2
-  spawnSpeedMax: 4
   spawnSpeed:
     min: 1
     max: 3
