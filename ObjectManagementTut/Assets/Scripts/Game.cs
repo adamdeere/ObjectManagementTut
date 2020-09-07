@@ -1,11 +1,35 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.SceneManagement;
 using System.Collections;
 using Random = UnityEngine.Random;
 using UnityEngine.UI;
+
+public enum ShapeBehaviorType 
+{
+    Movement,
+    Rotation,
+    Oscillation
+}
+
+public static class ShapeBehaviorTypeMethods
+{
+    public static ShapeBehaviour GetInstance (this ShapeBehaviorType type) 
+    {
+        switch (type) 
+        {
+            case ShapeBehaviorType.Movement:
+                return ShapeBehaviourPool<MovementBehaviour>.Get();
+            case ShapeBehaviorType.Rotation:
+                return ShapeBehaviourPool<RotationBehaviour>.Get();
+            case ShapeBehaviorType.Oscillation:
+                return ShapeBehaviourPool<OcscillationShapeBehaviour>.Get();
+        }
+        Debug.Log("Forgot to support " + type);
+        return null;
+    }
+}
 public class Game : PersistableObject
 {
     [SerializeField] private ShapeFactory[] shapeFactories;
@@ -15,13 +39,13 @@ public class Game : PersistableObject
     public KeyCode destroyKey = KeyCode.X;
     [FormerlySerializedAs("LoadGame")] public KeyCode loadGame = KeyCode.L;
     private List<Shape> _shapeList;
-
+  
     [SerializeField] private PersistentStorage storage;
     [SerializeField] Slider creationSpeedSlider;
     [SerializeField] Slider destructionSpeedSlider;
     private string _savePath;
     public int levelCount;
-    public static int SaveVersion { get; } = 5;
+    public static int SaveVersion { get; } = 6;
     public float CreationSpeed { get; set; }
   
     private int _loadedLevelBuildIndex;
