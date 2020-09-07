@@ -23,6 +23,8 @@ public class Shape : PersistableObject
         }
     }
     
+    public float Age { get; private set; }
+    
     List<ShapeBehaviour> _behaviorList = new List<ShapeBehaviour>();
 
     public int ColorCount => _color.Length;
@@ -75,7 +77,6 @@ public class Shape : PersistableObject
     }
     public void SetColor (Color color) 
     {
-        //this.color = color;
         if (_sharedPropertyBlock == null) 
         {
             _sharedPropertyBlock = new MaterialPropertyBlock();
@@ -95,6 +96,7 @@ public class Shape : PersistableObject
         {
             writer.Write(t);
         }
+        writer.Write(Age);
         writer.Write(_behaviorList.Count);
         foreach (var t in _behaviorList)
         {
@@ -117,6 +119,7 @@ public class Shape : PersistableObject
         }
         if (reader.Version >= 6) 
         {
+            Age = reader.ReadFloat();
             int behaviorCount = reader.ReadInt();
             for (int i = 0; i < behaviorCount; i++) 
             {
@@ -134,6 +137,7 @@ public class Shape : PersistableObject
 
     public void GameUpdate ()
     {
+        Age += Time.deltaTime;
         foreach (var t in _behaviorList)
         {
             t.GameUpdate(this);
@@ -163,6 +167,7 @@ public class Shape : PersistableObject
     
     public void Recycle () 
     {
+        Age = 0f;
         foreach (var t in _behaviorList)
         {
             t.Recycle();
