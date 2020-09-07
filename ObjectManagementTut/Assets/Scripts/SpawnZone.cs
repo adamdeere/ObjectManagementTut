@@ -2,6 +2,15 @@
 using Random = UnityEngine.Random;
 
 [System.Serializable]
+public struct ColorRangeHSV 
+{
+    public FloatRange hue, saturation, value;
+
+    public Color RandomInRange => Random.ColorHSV(hue.min, hue.max, saturation.min, saturation.max, value.min, value.max, 1f, 1f);
+}
+
+
+[System.Serializable]
 public struct FloatRange 
 {
 
@@ -28,6 +37,8 @@ public struct SpawnConfiguration
     public FloatRange angularSpeed;
 
     public FloatRange scale;
+    
+    public ColorRangeHSV color;
 }
 public abstract class SpawnZone : PersistableObject
 {
@@ -41,7 +52,7 @@ public abstract class SpawnZone : PersistableObject
         t.localPosition = SpawnPoint;
         t.localRotation = Random.rotation;
         t.localScale = Vector3.one * spawnConfig.scale.RandomValueInRange;
-        shape.SetColour(Random.ColorHSV(hueMin: 0f, hueMax: 1f, saturationMin: 0.5f, saturationMax: 1f, valueMin: 0.25f, valueMax: 1f, alphaMin: 1f, alphaMax: 1f));
+        shape.SetColour(spawnConfig.color.RandomInRange);
         shape.AngularVelocity = Random.onUnitSphere * spawnConfig.angularSpeed.RandomValueInRange;
         
         Vector3 direction;

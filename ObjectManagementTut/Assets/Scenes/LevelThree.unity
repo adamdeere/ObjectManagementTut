@@ -162,6 +162,16 @@ MonoBehaviour:
     scale:
       min: 0.1
       max: 2
+    color:
+      hue:
+        min: 0
+        max: 1
+      saturation:
+        min: 0.5
+        max: 1
+      value:
+        min: 0.25
+        max: 1
   spawnZones:
   - {fileID: 6224058095471247855}
   - {fileID: 8789263653622043572}
@@ -399,6 +409,16 @@ MonoBehaviour:
     scale:
       min: 0
       max: 0
+    color:
+      hue:
+        min: 0
+        max: 0
+      saturation:
+        min: 0
+        max: 0
+      value:
+        min: 0
+        max: 0
   surfaceOnly: 0
 --- !u!4 &3205300851021461310
 Transform:
@@ -468,6 +488,16 @@ MonoBehaviour:
     scale:
       min: 0
       max: 0
+    color:
+      hue:
+        min: 0
+        max: 0
+      saturation:
+        min: 0
+        max: 0
+      value:
+        min: 0
+        max: 0
   surfaceOnly: 0
 --- !u!1 &7272635840114278457
 GameObject:
@@ -509,6 +539,16 @@ MonoBehaviour:
     scale:
       min: 0
       max: 0
+    color:
+      hue:
+        min: 0
+        max: 0
+      saturation:
+        min: 0
+        max: 0
+      value:
+        min: 0
+        max: 0
   surfaceOnly: 0
 --- !u!4 &7272635840114278459
 Transform:
@@ -547,6 +587,16 @@ MonoBehaviour:
     scale:
       min: 0
       max: 0
+    color:
+      hue:
+        min: 0
+        max: 0
+      saturation:
+        min: 0
+        max: 0
+      value:
+        min: 0
+        max: 0
   surfaceOnly: 0
 --- !u!1 &8789263653622043573
 GameObject:
