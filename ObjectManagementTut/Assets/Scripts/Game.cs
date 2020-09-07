@@ -21,7 +21,7 @@ public class Game : PersistableObject
     [SerializeField] Slider destructionSpeedSlider;
     private string _savePath;
     public int levelCount;
-    public static int SaveVersion { get; } = 4;
+    public static int SaveVersion { get; } = 5;
     public float CreationSpeed { get; set; }
   
     private int _loadedLevelBuildIndex;

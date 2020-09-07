@@ -22,7 +22,7 @@ public struct FloatRange
 [System.Serializable]
 public struct SpawnConfiguration 
 {
-
+    public bool uniformColor;
     public enum MovementDirection 
     {
         Forward,
@@ -53,7 +53,17 @@ public abstract class SpawnZone : PersistableObject
         t.localPosition = SpawnPoint;
         t.localRotation = Random.rotation;
         t.localScale = Vector3.one * spawnConfig.scale.RandomValueInRange;
-        shape.SetColour(spawnConfig.color.RandomInRange);
+        if (spawnConfig.uniformColor) 
+        {
+            shape.SetColor(spawnConfig.color.RandomInRange);
+        }
+        else 
+        {
+            for (int i = 0; i < shape.ColorCount; i++) 
+            {
+                shape.SetColor(spawnConfig.color.RandomInRange, i);
+            }
+        }
         shape.AngularVelocity = Random.onUnitSphere * spawnConfig.angularSpeed.RandomValueInRange;
         
         Vector3 direction;
