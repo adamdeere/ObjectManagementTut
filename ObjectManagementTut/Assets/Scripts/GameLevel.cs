@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class GameLevel : PersistableObject
 {
@@ -16,9 +14,9 @@ public class GameLevel : PersistableObject
             persistentObjects = new PersistableObject[0];
         
     }
-    public Shape SpawnShape () 
+    public void SpawnShape () 
     {
-        return spawnZone.SpawnShape();
+         spawnZone.SpawnShape();
     }
     
     public override void Save (GameDataWriter writer) 

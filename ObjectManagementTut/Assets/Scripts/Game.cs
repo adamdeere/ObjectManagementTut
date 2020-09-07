@@ -10,7 +10,8 @@ public enum ShapeBehaviorType
 {
     Movement,
     Rotation,
-    Oscillation
+    Oscillation,
+    Satellite
 }
 
 public static class ShapeBehaviorTypeMethods
@@ -25,6 +26,8 @@ public static class ShapeBehaviorTypeMethods
                 return ShapeBehaviourPool<RotationBehaviour>.Get();
             case ShapeBehaviorType.Oscillation:
                 return ShapeBehaviourPool<OcscillationShapeBehaviour>.Get();
+            case ShapeBehaviorType.Satellite:
+                return ShapeBehaviourPool<SatelliteShapeBehavior>.Get();
         }
         Debug.Log("Forgot to support " + type);
         return null;
@@ -53,12 +56,13 @@ public class Game : PersistableObject
     float _creationProgress, _destructionProgress;
     private Random.State _mainRandomState;
 
-   
+    public static Game Instance { get; private set; }
 
     [FormerlySerializedAs("ReseedOnLoad")] [SerializeField] private bool reseedOnLoad;
 
     private void OnEnable()
     {
+        Instance = this;
         if (shapeFactories[0].FactoryId != 0) 
         {
             for (int i = 0; i < shapeFactories.Length; i++) 
@@ -83,7 +87,7 @@ public class Game : PersistableObject
         #region all keyboard inputs
         if (Input.GetKeyDown(createKey)) 
         {
-            CreateShape();
+            GameLevel.Current.SpawnShape();
         }
         else if (Input.GetKeyDown(newGameKey)) 
         {
@@ -129,7 +133,7 @@ public class Game : PersistableObject
         while (_creationProgress >= 1f) 
         {
             _creationProgress -= 1f;
-            CreateShape();
+            GameLevel.Current.SpawnShape();
         }
         _destructionProgress += Time.deltaTime * DestructionSpeed;
         while (_destructionProgress >= 1f) 
@@ -138,12 +142,6 @@ public class Game : PersistableObject
             DestroyShape();
         }
     }
-
-    private void CreateShape ()
-    {
-        _shapeList.Add(GameLevel.Current.SpawnShape());
-    }
-
     private void NewGame()
     {
         Random.state = _mainRandomState;
@@ -198,7 +196,10 @@ public class Game : PersistableObject
         _shapeList[index] = _shapeList[lastIndex];
         _shapeList.RemoveAt(lastIndex);
     }
-    
+    public void AddShape (Shape shape)
+    {
+        _shapeList.Add(shape);
+    }
     IEnumerator LoadLevel (int levelIndex) 
     {
         enabled = false;
@@ -241,7 +242,6 @@ public class Game : PersistableObject
             int materialId = version > 0 ? reader.ReadInt() : 0;
             Shape instance = shapeFactories[factoryId].Get(shapeId, materialId);
             instance.Load(reader);
-            _shapeList.Add(instance);
         }
     }
 }
