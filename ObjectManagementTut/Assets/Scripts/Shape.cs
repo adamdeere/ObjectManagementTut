@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Shape : PersistableObject
@@ -7,8 +8,6 @@ public class Shape : PersistableObject
     private Color[] _color;
     static int _colorPropertyId = Shader.PropertyToID("_Color");
     static MaterialPropertyBlock _sharedPropertyBlock;
-    public Vector3 AngularVelocity { get; set; }
-    public Vector3 Velocity { get; set; }
 
     int _shapeId = int.MinValue;
     public int MaterialId { get; private set; }
@@ -23,6 +22,8 @@ public class Shape : PersistableObject
                 Debug.LogError("Not allowed to change shapeId.");
         }
     }
+    
+    List<ShapeBehaviour> _behaviorList = new List<ShapeBehaviour>();
 
     public int ColorCount => _color.Length;
     
@@ -31,6 +32,13 @@ public class Shape : PersistableObject
     private void Awake()
     {
         _color = new Color[_meshRenderers.Length];
+    }
+    
+    public T AddBehavior<T> () where T : ShapeBehaviour, new ()
+    {
+        var behavior = ShapeBehaviourPool<T>.Get();
+        _behaviorList.Add(behavior);
+        return behavior;
     }
     public ShapeFactory OriginFactory 
     {
@@ -73,7 +81,8 @@ public class Shape : PersistableObject
             _sharedPropertyBlock = new MaterialPropertyBlock();
         }
         _sharedPropertyBlock.SetColor(_colorPropertyId, color);
-        for (int i = 0; i < _meshRenderers.Length; i++) {
+        for (int i = 0; i < _meshRenderers.Length; i++) 
+        {
             _color[i] = color;
             _meshRenderers[i].SetPropertyBlock(_sharedPropertyBlock);
         }
@@ -86,8 +95,12 @@ public class Shape : PersistableObject
         {
             writer.Write(t);
         }
-        writer.Write(AngularVelocity);
-        writer.Write(Velocity);
+        writer.Write(_behaviorList.Count);
+        foreach (var t in _behaviorList)
+        {
+            writer.Write((int)t.BehaviorType);
+            t.Save(writer);
+        }
     }
 
     public override void Load (GameDataReader reader) 
@@ -102,14 +115,29 @@ public class Shape : PersistableObject
         {
             SetColor(reader.Version > 0 ? reader.ReadColor() : Color.white);
         }
-        AngularVelocity = reader.Version >= 4 ? reader.ReadVector() : Vector3.zero;
-        Velocity = reader.Version >= 4 ? reader.ReadVector() : Vector3.zero;
+        if (reader.Version >= 6) 
+        {
+            int behaviorCount = reader.ReadInt();
+            for (int i = 0; i < behaviorCount; i++) 
+            {
+                ShapeBehaviour behavior = ((ShapeBehaviorType)reader.ReadInt()).GetInstance();
+                _behaviorList.Add(behavior);
+                behavior.Load(reader);
+            }
+        }
+        else if (reader.Version >= 4) 
+        {
+            AddBehavior<RotationBehaviour>().AngularVelocity = reader.ReadVector();
+            AddBehavior<MovementBehaviour>().Velocity = reader.ReadVector();
+        }
     }
 
-    public void GameUpdate () 
+    public void GameUpdate ()
     {
-        transform.Rotate(AngularVelocity * Time.deltaTime);
-        transform.localPosition += Velocity * Time.deltaTime;
+        foreach (var t in _behaviorList)
+        {
+            t.GameUpdate(this);
+        }
     }
     void LoadColors (GameDataReader reader) 
     {
@@ -135,6 +163,11 @@ public class Shape : PersistableObject
     
     public void Recycle () 
     {
+        foreach (var t in _behaviorList)
+        {
+            t.Recycle();
+        }
+        _behaviorList.Clear();
         OriginFactory.Reclaim(this);
     }
 
