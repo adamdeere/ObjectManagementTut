@@ -406,7 +406,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b74168badad54065a875279f9003357, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shapeFactory: {fileID: 11400000, guid: 6710c704813fa4ddfbde41003d07e7cd, type: 2}
+  shapeFactories:
+  - {fileID: 11400000, guid: 6710c704813fa4ddfbde41003d07e7cd, type: 2}
+  - {fileID: 11400000, guid: 7835b2fa3ecb64998b05b9e590ece2f1, type: 2}
   createKey: 99
   newGameKey: 110
   saveGame: 115
