@@ -30,7 +30,9 @@ public struct SpawnConfiguration
         Outward,
         Random
     }
-
+    
+    public ShapeFactory[] factories;
+    
     public MovementDirection movementDirection;
 
     public FloatRange speed;
@@ -47,8 +49,10 @@ public abstract class SpawnZone : PersistableObject
     public abstract Vector3 SpawnPoint { get; }
     [SerializeField] private SpawnConfiguration spawnConfig;
    
-    public virtual void ConfigureSpawn (Shape shape) 
+    public virtual Shape SpawnShape () 
     {
+        int factoryIndex = Random.Range(0, spawnConfig.factories.Length);
+        Shape shape = spawnConfig.factories[factoryIndex].GetRandom();
         var t = shape.transform;
         t.localPosition = SpawnPoint;
         t.localRotation = Random.rotation;
@@ -57,9 +61,10 @@ public abstract class SpawnZone : PersistableObject
         {
             shape.SetColor(spawnConfig.color.RandomInRange);
         }
-        else 
+        else
         {
-            for (int i = 0; i < shape.ColorCount; i++) 
+            int i = 0;
+            for (; i < shape.ColorCount; i++) 
             {
                 shape.SetColor(spawnConfig.color.RandomInRange, i);
             }
@@ -82,5 +87,7 @@ public abstract class SpawnZone : PersistableObject
                 break;
         }
         shape.Velocity = direction * spawnConfig.speed.RandomValueInRange;
+
+        return shape;
     }
 }

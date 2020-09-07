@@ -106,9 +106,7 @@ public class Game : PersistableObject
 
     private void CreateShape ()
     {
-        var instance = shapeFactory.GetRandom();
-        GameLevel.Current.ConfigureSpawn(instance);
-        _shapeList.Add(instance);
+        _shapeList.Add(GameLevel.Current.SpawnShape());
     }
 
     private void NewGame()
@@ -121,7 +119,7 @@ public class Game : PersistableObject
         destructionSpeedSlider.value = DestructionSpeed = 0;
         foreach (var item in _shapeList)
         { 
-            shapeFactory.Reclaim(item);
+            item.Recycle();
         }
         _shapeList.Clear();
     }
@@ -159,7 +157,7 @@ public class Game : PersistableObject
         if (_shapeList.Count <= 0) return;
         
         var index = Random.Range(0, _shapeList.Count);
-        shapeFactory.Reclaim(_shapeList[index]);
+        _shapeList[index].Recycle();
         var lastIndex = _shapeList.Count - 1;
         _shapeList[index] = _shapeList[lastIndex];
         _shapeList.RemoveAt(lastIndex);

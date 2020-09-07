@@ -30,6 +30,7 @@ public class ShapeFactory : ScriptableObject
             else 
             {
                 instance = Instantiate(prefabs[shapeId]);
+                instance.OriginFactory = this;
                 instance.ShapeId = shapeId;
                 SceneManager.MoveGameObjectToScene(instance.gameObject, _poolScene);
             }
@@ -48,6 +49,12 @@ public class ShapeFactory : ScriptableObject
   
     public void Reclaim (Shape shapeToRecycle) 
     {
+        if (shapeToRecycle.OriginFactory != this) 
+        {
+            Debug.LogError("Tried to reclaim shape with wrong factory.");
+            return;
+        }
+        
         if (recycle) 
         {
             if (_pools == null) 

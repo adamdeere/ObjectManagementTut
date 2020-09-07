@@ -25,12 +25,27 @@ public class Shape : PersistableObject
     }
 
     public int ColorCount => _color.Length;
+    
+    private ShapeFactory _originFactory;
 
     private void Awake()
     {
         _color = new Color[_meshRenderers.Length];
     }
-
+    public ShapeFactory OriginFactory 
+    {
+        get => _originFactory;
+        set 
+        {
+            if (_originFactory == null) 
+            {
+                _originFactory = value;
+            }
+            else {
+                Debug.LogError("Not allowed to change origin factory.");
+            }
+        }
+    }
     public void SetMaterial (Material material, int materialId)
     {
         foreach (var t in _meshRenderers)
@@ -116,6 +131,11 @@ public class Shape : PersistableObject
                 SetColor(Color.white, i);
             }
         }
+    }
+    
+    public void Recycle () 
+    {
+        OriginFactory.Reclaim(this);
     }
 
 }
