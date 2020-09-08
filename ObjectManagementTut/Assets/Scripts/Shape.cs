@@ -1,6 +1,20 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
+public struct ShapeInstance 
+{
+    public Shape Shape { get; private set; }
+    
+    int _instanceId;
+    public ShapeInstance(Shape shape)
+    {
+        Shape = shape;
+        _instanceId = shape.InstanceId;
+    }
+    public bool IsValid => Shape && _instanceId == Shape.InstanceId;
+}
+
 public class Shape : PersistableObject
 {
     [SerializeField] private MeshRenderer[] _meshRenderers;
@@ -22,6 +36,7 @@ public class Shape : PersistableObject
         }
     }
     
+    public int InstanceId { get; private set; }
     public float Age { get; private set; }
     
     List<ShapeBehaviour> _behaviorList = new List<ShapeBehaviour>();
@@ -29,7 +44,9 @@ public class Shape : PersistableObject
     public int ColorCount => _color.Length;
     
     private ShapeFactory _originFactory;
-
+    
+    
+    
     private void Awake()
     {
         _color = new Color[_meshRenderers.Length];
@@ -167,6 +184,7 @@ public class Shape : PersistableObject
     public void Recycle () 
     {
         Age = 0f;
+        InstanceId += 1;
         foreach (var t in _behaviorList)
         {
             t.Recycle();
