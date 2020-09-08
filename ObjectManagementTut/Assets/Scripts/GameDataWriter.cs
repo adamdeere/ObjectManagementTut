@@ -43,12 +43,19 @@ public class GameDataWriter
         _writer.Write(value.b);
         _writer.Write(value.a);
     }
+    public void Write (ShapeInstance value) 
+    {
+        _writer.Write(value.IsValid ? value.Shape.SaveIndex : -1);
+    }
 }
 public class GameDataReader
 {
     private readonly BinaryReader _reader;
     public int Version { get; }
-    
+    public ShapeInstance ReadShapeInstance () 
+    {
+        return new ShapeInstance(_reader.ReadInt32());
+    }
     public GameDataReader (BinaryReader reader, int version) 
     {
         _reader = reader;

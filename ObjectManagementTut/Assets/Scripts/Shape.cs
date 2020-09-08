@@ -6,17 +6,33 @@ public struct ShapeInstance
 {
     public Shape Shape { get; private set; }
     
-    int _instanceId;
+    private int _instanceIdOrSaveIndex;
+    
     public ShapeInstance(Shape shape)
     {
         Shape = shape;
-        _instanceId = shape.InstanceId;
+        _instanceIdOrSaveIndex = shape.InstanceId;
     }
-    public bool IsValid => Shape && _instanceId == Shape.InstanceId;
+    public ShapeInstance (int saveIndex) 
+    {
+        Shape = null;
+        _instanceIdOrSaveIndex = saveIndex;
+    }
+    
+    public void Resolve () 
+    {
+        if (_instanceIdOrSaveIndex >= 0) 
+        {
+            Shape = Game.Instance.GetShape(_instanceIdOrSaveIndex);
+            _instanceIdOrSaveIndex = Shape.InstanceId;
+        }
+    }
+    public bool IsValid => Shape && _instanceIdOrSaveIndex == Shape.InstanceId;
 }
 
 public class Shape : PersistableObject
 {
+   
     public static implicit operator ShapeInstance (Shape shape) 
     {
         return new ShapeInstance(shape);
@@ -42,6 +58,8 @@ public class Shape : PersistableObject
     
     public int InstanceId { get; private set; }
     public float Age { get; private set; }
+    
+    public int SaveIndex { get; set; }
     
     List<ShapeBehaviour> _behaviorList = new List<ShapeBehaviour>();
 
@@ -158,13 +176,13 @@ public class Shape : PersistableObject
     public void GameUpdate ()
     {
         Age += Time.deltaTime;
-        foreach (var t in _behaviorList)
+        for (int i = 0; i < _behaviorList.Count; i++) 
         {
-            if (t.GameUpdate(this))
+            if (!_behaviorList[i].GameUpdate(this)) 
             {
-                
+                _behaviorList[i].Recycle();
+                _behaviorList.RemoveAt(i--);
             }
-            t.GameUpdate(this);
         }
     }
     void LoadColors (GameDataReader reader) 
@@ -188,7 +206,13 @@ public class Shape : PersistableObject
             }
         }
     }
-    
+    public void ResolveShapeInstances ()
+    {
+        foreach (var t in _behaviorList)
+        {
+            t.ResolveShapeInstances();
+        }
+    }
     public void Recycle () 
     {
         Age = 0f;

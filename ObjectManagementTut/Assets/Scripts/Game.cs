@@ -193,11 +193,13 @@ public class Game : PersistableObject
         var index = Random.Range(0, _shapeList.Count);
         _shapeList[index].Recycle();
         var lastIndex = _shapeList.Count - 1;
+        _shapeList[lastIndex].SaveIndex = index;
         _shapeList[index] = _shapeList[lastIndex];
         _shapeList.RemoveAt(lastIndex);
     }
     public void AddShape (Shape shape)
     {
+        shape.SaveIndex = _shapeList.Count;
         _shapeList.Add(shape);
     }
     IEnumerator LoadLevel (int levelIndex) 
@@ -243,6 +245,15 @@ public class Game : PersistableObject
             Shape instance = shapeFactories[factoryId].Get(shapeId, materialId);
             instance.Load(reader);
         }
+        foreach (var t in _shapeList)
+        {
+            t.ResolveShapeInstances();
+        }
+    }
+    
+    public Shape GetShape (int index) 
+    {
+        return _shapeList[index];
     }
 }
 

@@ -24,5 +24,7 @@ public abstract class ShapeBehaviour
     public abstract ShapeBehaviorType BehaviorType { get; }
     
     public abstract void Recycle ();
+    
+    public virtual void ResolveShapeInstances () {}
 
 }
