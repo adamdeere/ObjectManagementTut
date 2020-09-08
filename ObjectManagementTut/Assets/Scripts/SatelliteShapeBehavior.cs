@@ -9,12 +9,22 @@ public sealed class SatelliteShapeBehavior : ShapeBehaviour
     private Vector3 _cosOffset, _sinOffset;
     public void Initialize(Shape shape, Shape focalShape, float radius, float frequency)
     {
-        _focalShape = focalShape;
-        this._frequency = frequency;
+        _focalShape = focalShape; 
+        _frequency = frequency;
+        var orbitAxis = Random.onUnitSphere;
         _cosOffset = Vector3.right;
-        _sinOffset = Vector3.forward;
+        do 
+        {
+            _cosOffset = Vector3.Cross(orbitAxis, Random.onUnitSphere).normalized;
+        }
+        while (_cosOffset.sqrMagnitude < 0.1f);
+        _sinOffset =Vector3.Cross(_cosOffset, orbitAxis);
+        
         _cosOffset *= radius;
         _sinOffset *= radius;
+       
+        shape.AddBehavior<RotationBehaviour>().AngularVelocity = -360f * _frequency * shape.transform.InverseTransformDirection(orbitAxis);
+     
         GameUpdate(shape);
     }
     public override void GameUpdate(Shape shape)
