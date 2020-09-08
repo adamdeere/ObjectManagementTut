@@ -17,6 +17,10 @@ public struct ShapeInstance
 
 public class Shape : PersistableObject
 {
+    public static implicit operator ShapeInstance (Shape shape) 
+    {
+        return new ShapeInstance(shape);
+    }
     [SerializeField] private MeshRenderer[] _meshRenderers;
     private Color[] _color;
     static int _colorPropertyId = Shader.PropertyToID("_Color");
@@ -156,6 +160,10 @@ public class Shape : PersistableObject
         Age += Time.deltaTime;
         foreach (var t in _behaviorList)
         {
+            if (t.GameUpdate(this))
+            {
+                
+            }
             t.GameUpdate(this);
         }
     }

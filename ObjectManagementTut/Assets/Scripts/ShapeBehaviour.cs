@@ -15,7 +15,7 @@ public abstract class ShapeBehaviour
 
     public bool IsReclaimed { get; set; }
 #endif
-    public abstract void GameUpdate(Shape shape);
+    public abstract bool GameUpdate(Shape shape);
     
     public abstract void Save (GameDataWriter writer);
 

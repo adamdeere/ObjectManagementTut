@@ -2,7 +2,7 @@
 
 public sealed class SatelliteShapeBehavior : ShapeBehaviour
 {
-    private Shape _focalShape;
+    private ShapeInstance _focalShape;
 
     private float _frequency;
 
@@ -27,10 +27,16 @@ public sealed class SatelliteShapeBehavior : ShapeBehaviour
      
         GameUpdate(shape);
     }
-    public override void GameUpdate(Shape shape)
+    public override bool GameUpdate(Shape shape)
     {
-        var t = 2f * Mathf.PI * _frequency * shape.Age;
-        shape.transform.localPosition = _focalShape.transform.localPosition + _cosOffset * Mathf.Cos(t) + _sinOffset * Mathf.Sin(t);
+        if (_focalShape.IsValid)
+        {
+            var t = 2f * Mathf.PI * _frequency * shape.Age;
+            shape.transform.localPosition = _focalShape.Shape.transform.localPosition + _cosOffset * Mathf.Cos(t) + _sinOffset * Mathf.Sin(t);
+            return true;
+        }
+
+        return false;
     }
 
     public override void Save(GameDataWriter writer)
