@@ -4,6 +4,16 @@ using UnityEngine;
 using Random = UnityEngine.Random;
 
 [Serializable]
+public struct IntRange 
+{
+
+    public int min, max;
+
+    public int RandomValueInRange => Random.Range(min, max + 1);
+}
+
+
+[Serializable]
 public struct ColorRangeHSV 
 {
      [FloatRangeSlider(0f, 1f)]
@@ -21,7 +31,8 @@ public struct FloatRange
 [Serializable]
 public struct SatelliteConfiguration 
 {
-
+    public IntRange amount;
+    
     [FloatRangeSlider(0.1f, 1f)]
     public FloatRange RelativeScale;
 
@@ -94,8 +105,11 @@ public abstract class SpawnZone : PersistableObject
             movement.Velocity = GetDirectionVector(spawnConfig.movementDirection, t) * speed;
           
         }
-        SetupOscillation(shape);
-        CreateSatelliteFor(shape);
+      //  SetupOscillation(shape);
+      var satelliteCount = spawnConfig.satellite.amount.RandomValueInRange;
+      for (var i = 0; i < satelliteCount; i++) 
+          CreateSatelliteFor(shape);
+      
     }
     
     private Vector3 GetDirectionVector (SpawnConfiguration.MovementDirection direction, Transform t) 

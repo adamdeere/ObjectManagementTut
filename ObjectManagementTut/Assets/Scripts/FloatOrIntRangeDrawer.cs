@@ -2,7 +2,7 @@
 using UnityEngine;
 
 [CustomPropertyDrawer(typeof(FloatRange)), CustomPropertyDrawer(typeof(IntRange))]
-public class FloatRangeDraw : PropertyDrawer
+public class FloatOrIntRangeDrawer : PropertyDrawer
 {
     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
     {
