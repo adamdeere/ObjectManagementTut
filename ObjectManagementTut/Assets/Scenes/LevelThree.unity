@@ -196,6 +196,10 @@ MonoBehaviour:
       OrbitFrequency:
         min: 0.25
         max: 0.5
+    lifecycle:
+      growingDuration:
+        min: 0
+        max: 2
   spawnZones:
   - {fileID: 6224058095471247855}
   - {fileID: 8789263653622043572}
@@ -465,6 +469,10 @@ MonoBehaviour:
       OrbitFrequency:
         min: 0
         max: 0
+    lifecycle:
+      growingDuration:
+        min: 0
+        max: 0
   surfaceOnly: 0
 --- !u!4 &3205300851021461310
 Transform:
@@ -528,8 +536,8 @@ MonoBehaviour:
     factories: []
     movementDirection: 0
     speed:
-      min: 0
-      max: 0
+      min: 0.1
+      max: 2
     angularSpeed:
       min: 0
       max: 0
@@ -558,14 +566,18 @@ MonoBehaviour:
         min: 0
         max: 0
       RelativeScale:
-        min: 0
-        max: 0
+        min: 0.1
+        max: 0.1
       OrbitRadius:
         min: 0
         max: 0
       OrbitFrequency:
         min: 0
         max: 0
+    lifecycle:
+      growingDuration:
+        min: 0
+        max: 2
   surfaceOnly: 0
 --- !u!1 &7272635840114278457
 GameObject:
@@ -639,6 +651,10 @@ MonoBehaviour:
       OrbitFrequency:
         min: 0
         max: 0
+    lifecycle:
+      growingDuration:
+        min: 0
+        max: 0
   surfaceOnly: 0
 --- !u!4 &7272635840114278459
 Transform:
@@ -707,6 +723,10 @@ MonoBehaviour:
         min: 0
         max: 0
       OrbitFrequency:
+        min: 0
+        max: 0
+    lifecycle:
+      growingDuration:
         min: 0
         max: 0
   surfaceOnly: 0

@@ -11,7 +11,8 @@ public enum ShapeBehaviorType
     Movement,
     Rotation,
     Oscillation,
-    Satellite
+    Satellite,
+    Growing
 }
 
 public static class ShapeBehaviorTypeMethods
@@ -28,6 +29,8 @@ public static class ShapeBehaviorTypeMethods
                 return ShapeBehaviourPool<OcscillationShapeBehaviour>.Get();
             case ShapeBehaviorType.Satellite:
                 return ShapeBehaviourPool<SatelliteShapeBehavior>.Get();
+            case ShapeBehaviorType.Growing:
+                return ShapeBehaviourPool<GrowingShapeBehavior>.Get();
         }
         Debug.Log("Forgot to support " + type);
         return null;

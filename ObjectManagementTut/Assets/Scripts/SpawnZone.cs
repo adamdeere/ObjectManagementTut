@@ -72,6 +72,16 @@ public struct SpawnConfiguration
     public FloatRange oscillationFrequency;
 
     public SatelliteConfiguration satellite;
+    
+    [Serializable]
+    public struct LifecycleConfiguration 
+    {
+
+        [FloatRangeSlider(0f, 2f)]
+        public FloatRange growingDuration;
+    }
+
+    public LifecycleConfiguration lifecycle;
 }
 
 
@@ -105,10 +115,14 @@ public abstract class SpawnZone : PersistableObject
             movement.Velocity = GetDirectionVector(spawnConfig.movementDirection, t) * speed;
           
         }
+        
+        float growingDuration = spawnConfig.lifecycle.growingDuration.RandomValueInRange;
       //  SetupOscillation(shape);
       var satelliteCount = spawnConfig.satellite.amount.RandomValueInRange;
       for (var i = 0; i < satelliteCount; i++) 
-          CreateSatelliteFor(shape);
+          CreateSatelliteFor(shape, growingDuration);
+      
+      SetupLifecycle(shape, growingDuration);
       
     }
     
@@ -142,7 +156,7 @@ public abstract class SpawnZone : PersistableObject
         oscillation.Frequency = frequency;
     }
     
-    private void CreateSatelliteFor ([NotNull] Shape focalShape) 
+    private void CreateSatelliteFor ([NotNull] Shape focalShape, float growingDuration) 
     {
         SetupColor(focalShape);
         if (focalShape == null) throw new ArgumentNullException(nameof(focalShape));
@@ -153,6 +167,7 @@ public abstract class SpawnZone : PersistableObject
         t.localScale = focalShape.transform.localScale * spawnConfig.satellite.RelativeScale.RandomValueInRange;
         SetupColor(shape);
         shape.AddBehavior<SatelliteShapeBehavior>().Initialize(shape, focalShape, spawnConfig.satellite.OrbitRadius.RandomValueInRange, spawnConfig.satellite.OrbitFrequency.RandomValueInRange);
+        SetupLifecycle(shape, growingDuration);
     }
     void SetupColor (Shape shape) 
     {
@@ -166,6 +181,14 @@ public abstract class SpawnZone : PersistableObject
             {
                 shape.SetColor(spawnConfig.color.RandomInRange, i);
             }
+        }
+    }
+    
+    void SetupLifecycle (Shape shape, float growingDuration) 
+    {
+        if (growingDuration > 0f) 
+        {
+            shape.AddBehavior<GrowingShapeBehavior>().Initialize(shape, growingDuration);
         }
     }
 }
