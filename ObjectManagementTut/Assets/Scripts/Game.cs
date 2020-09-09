@@ -141,6 +141,14 @@ public class Game : PersistableObject
             _destructionProgress -= 1f;
             DestroyShape();
         }
+        int limit = GameLevel.Current.PopulationLimit;
+        if (limit > 0) 
+        {
+            while (_shapeList.Count > limit) 
+            {
+                DestroyShape();
+            }
+        }
     }
     private void NewGame()
     {

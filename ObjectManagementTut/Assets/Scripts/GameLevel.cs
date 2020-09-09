@@ -4,7 +4,10 @@ public class GameLevel : PersistableObject
 {
     [SerializeField] private SpawnZone spawnZone;
     [SerializeField] private PersistableObject[] persistentObjects;
+    [SerializeField] private int populationLimit;
     public static GameLevel Current { get; private set; }
+
+    public int PopulationLimit => populationLimit;
 
     public void OnEnable () 
     {
@@ -19,12 +22,12 @@ public class GameLevel : PersistableObject
          spawnZone.SpawnShape();
     }
     
-    public override void Save (GameDataWriter writer) 
+    public override void Save (GameDataWriter writer)
     {
         writer.Write(persistentObjects.Length);
-        for (int i = 0; i < persistentObjects.Length; i++) 
+        foreach (var t in persistentObjects)
         {
-            persistentObjects[i].Save(writer);
+            t.Save(writer);
         }
     }
 
