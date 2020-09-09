@@ -224,5 +224,9 @@ public class Shape : PersistableObject
         _behaviorList.Clear();
         OriginFactory.Reclaim(this);
     }
+    public void Die () 
+    {
+        Game.Instance.Kill(this);
+    }
 
 }

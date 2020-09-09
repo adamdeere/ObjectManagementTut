@@ -79,6 +79,11 @@ public struct SpawnConfiguration
 
         [FloatRangeSlider(0f, 2f)]
         public FloatRange growingDuration;
+        
+        [FloatRangeSlider(0f, 2f)]
+        public FloatRange dyingDuration;
+        
+        public Vector2 RandomDurations => new Vector2(growingDuration.RandomValueInRange, dyingDuration.RandomValueInRange);
     }
 
     public LifecycleConfiguration lifecycle;
@@ -114,15 +119,14 @@ public abstract class SpawnZone : PersistableObject
             var movement = shape.AddBehavior<MovementBehaviour>();
             movement.Velocity = GetDirectionVector(spawnConfig.movementDirection, t) * speed;
           
-        }
-        
-        float growingDuration = spawnConfig.lifecycle.growingDuration.RandomValueInRange;
+        } 
+        var lifecycleDurations = spawnConfig.lifecycle.RandomDurations;
       //  SetupOscillation(shape);
-      var satelliteCount = spawnConfig.satellite.amount.RandomValueInRange;
-      for (var i = 0; i < satelliteCount; i++) 
-          CreateSatelliteFor(shape, growingDuration);
+        var satelliteCount = spawnConfig.satellite.amount.RandomValueInRange;
+        for (var i = 0; i < satelliteCount; i++) 
+          CreateSatelliteFor(shape, lifecycleDurations);
       
-      SetupLifecycle(shape, growingDuration);
+        SetupLifecycle(shape, lifecycleDurations);
       
     }
     
@@ -156,7 +160,7 @@ public abstract class SpawnZone : PersistableObject
         oscillation.Frequency = frequency;
     }
     
-    private void CreateSatelliteFor ([NotNull] Shape focalShape, float growingDuration) 
+    private void CreateSatelliteFor ([NotNull] Shape focalShape,  Vector2 durations) 
     {
         SetupColor(focalShape);
         if (focalShape == null) throw new ArgumentNullException(nameof(focalShape));
@@ -167,7 +171,7 @@ public abstract class SpawnZone : PersistableObject
         t.localScale = focalShape.transform.localScale * spawnConfig.satellite.RelativeScale.RandomValueInRange;
         SetupColor(shape);
         shape.AddBehavior<SatelliteShapeBehavior>().Initialize(shape, focalShape, spawnConfig.satellite.OrbitRadius.RandomValueInRange, spawnConfig.satellite.OrbitFrequency.RandomValueInRange);
-        SetupLifecycle(shape, growingDuration);
+        SetupLifecycle(shape, durations);
     }
     void SetupColor (Shape shape) 
     {
@@ -184,11 +188,15 @@ public abstract class SpawnZone : PersistableObject
         }
     }
     
-    void SetupLifecycle (Shape shape, float growingDuration) 
+    void SetupLifecycle (Shape shape,  Vector2 durations) 
     {
-        if (growingDuration > 0f) 
+        if (durations.x > 0f) 
         {
-            shape.AddBehavior<GrowingShapeBehavior>().Initialize(shape, growingDuration);
+            shape.AddBehavior<GrowingShapeBehavior>().Initialize(shape, durations.x);
+        }
+        else if (durations.y > 0f) 
+        {
+            shape.AddBehavior<DyingShapeBehavior>().Initialize(shape, durations.y);
         }
     }
 }

@@ -1,47 +1,48 @@
 ﻿using UnityEngine;
 
-public sealed class GrowingShapeBehavior : ShapeBehaviour
+public sealed class DyingShapeBehavior : ShapeBehaviour
 {
     private Vector3 _originalScale;
-    private float _duration;
+    private float _duration, _dyingAge;
     public override ShapeBehaviorType BehaviorType => ShapeBehaviorType.Growing;
 
     public void Initialize (Shape shape, float duration) 
     {
         _originalScale = shape.transform.localScale;
         _duration = duration;
-        shape.transform.localScale = Vector3.zero;
+        _dyingAge = shape.Age;
     }
     
     public override bool GameUpdate (Shape shape) 
     {
-        if (shape.Age < _duration) 
+        float dyingDuration = shape.Age - _dyingAge;
+        if (dyingDuration < _duration) 
         {
-            var s = shape.Age / _duration;
+            float s = 1f - dyingDuration / _duration;
             s = (3f - 2f * s) * s * s;
             shape.transform.localScale = s * _originalScale;
             return true;
         }
-       
-       
-        shape.transform.localScale = _originalScale;
-        return false;
+        shape.Die();
+        return true;
     }
 
     public override void Save(GameDataWriter writer)
     {
         writer.Write(_originalScale);
         writer.Write(_duration);
+        writer.Write(_dyingAge);
     }
 
     public override void Load(GameDataReader reader)
     {
         _originalScale = reader.ReadVector();
         _duration = reader.ReadFloat();
+        _dyingAge = reader.ReadFloat();
     }
 
     public override void Recycle () 
     {
-        ShapeBehaviourPool<GrowingShapeBehavior>.Reclaim(this);
+        ShapeBehaviourPool<DyingShapeBehavior>.Reclaim(this);
     }
 }

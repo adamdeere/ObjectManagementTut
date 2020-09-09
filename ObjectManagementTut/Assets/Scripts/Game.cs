@@ -45,7 +45,7 @@ public class Game : PersistableObject
     public KeyCode destroyKey = KeyCode.X;
     [FormerlySerializedAs("LoadGame")] public KeyCode loadGame = KeyCode.L;
     private List<Shape> _shapeList;
-  
+    private List<ShapeInstance> killList;
     [SerializeField] private PersistentStorage storage;
     [SerializeField] Slider creationSpeedSlider;
     [SerializeField] Slider destructionSpeedSlider;
@@ -58,7 +58,7 @@ public class Game : PersistableObject
     public float DestructionSpeed { get; set; }
     float _creationProgress, _destructionProgress;
     private Random.State _mainRandomState;
-
+    private bool inGameUpdateLoop;
     public static Game Instance { get; private set; }
 
     [FormerlySerializedAs("ReseedOnLoad")] [SerializeField] private bool reseedOnLoad;
@@ -80,7 +80,7 @@ public class Game : PersistableObject
     { 
         _mainRandomState = Random.state;
         _shapeList = new List<Shape>();
-      
+        killList = new List<ShapeInstance>();
         NewGame();
         StartCoroutine(LoadLevel(levelCount));
     }
@@ -128,10 +128,13 @@ public class Game : PersistableObject
 
     private void FixedUpdate()
     {
+        inGameUpdateLoop = true;
         foreach (var t in _shapeList)
         {
             t.GameUpdate();
         }
+
+        inGameUpdateLoop = false;
         _creationProgress += Time.deltaTime * CreationSpeed;
         while (_creationProgress >= 1f) 
         {
@@ -144,13 +147,27 @@ public class Game : PersistableObject
             _destructionProgress -= 1f;
             DestroyShape();
         }
-        int limit = GameLevel.Current.PopulationLimit;
+        var limit = GameLevel.Current.PopulationLimit;
         if (limit > 0) 
         {
             while (_shapeList.Count > limit) 
             {
                 DestroyShape();
             }
+        }
+        
+        if (killList.Count > 0)
+        {
+            for (var index = 0; index < killList.Count; index++)
+            {
+                var t = killList[index];
+                if (t.IsValid)
+                {
+                    KillImmediately(t.Shape);
+                }
+            }
+
+            killList.Clear();
         }
     }
     private void NewGame()
@@ -201,12 +218,8 @@ public class Game : PersistableObject
     {
         if (_shapeList.Count <= 0) return;
         
-        var index = Random.Range(0, _shapeList.Count);
-        _shapeList[index].Recycle();
-        var lastIndex = _shapeList.Count - 1;
-        _shapeList[lastIndex].SaveIndex = index;
-        _shapeList[index] = _shapeList[lastIndex];
-        _shapeList.RemoveAt(lastIndex);
+        var shape = _shapeList[Random.Range(0, _shapeList.Count)];
+        KillImmediately(shape);
     }
     public void AddShape (Shape shape)
     {
@@ -265,6 +278,25 @@ public class Game : PersistableObject
     public Shape GetShape (int index) 
     {
         return _shapeList[index];
+    }
+    void KillImmediately (Shape shape) {
+        var index = shape.SaveIndex;
+        shape.Recycle();
+        var lastIndex = _shapeList.Count - 1;
+        _shapeList[lastIndex].SaveIndex = index;
+        _shapeList[index] = _shapeList[lastIndex];
+        _shapeList.RemoveAt(lastIndex);
+    }
+    public void Kill (Shape shape) 
+    {
+        if (inGameUpdateLoop) 
+        {
+            killList.Add(shape);
+        }
+        else 
+        {
+            KillImmediately(shape);
+        }
     }
 }
 
