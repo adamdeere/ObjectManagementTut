@@ -6,12 +6,9 @@ using Random = UnityEngine.Random;
 [Serializable]
 public struct IntRange 
 {
-
     public int min, max;
-
     public int RandomValueInRange => Random.Range(min, max + 1);
 }
-
 
 [Serializable]
 public struct ColorRangeHSV 
@@ -80,10 +77,15 @@ public struct SpawnConfiguration
         [FloatRangeSlider(0f, 2f)]
         public FloatRange growingDuration;
         
+        [FloatRangeSlider(0f, 100f)]
+        public FloatRange adultDuration;
+        
         [FloatRangeSlider(0f, 2f)]
         public FloatRange dyingDuration;
         
-        public Vector2 RandomDurations => new Vector2(growingDuration.RandomValueInRange, dyingDuration.RandomValueInRange);
+       
+        
+        public Vector3 RandomDurations => new Vector3(growingDuration.RandomValueInRange, adultDuration.RandomValueInRange, dyingDuration.RandomValueInRange);
     }
 
     public LifecycleConfiguration lifecycle;
@@ -160,7 +162,7 @@ public abstract class SpawnZone : PersistableObject
         oscillation.Frequency = frequency;
     }
     
-    private void CreateSatelliteFor ([NotNull] Shape focalShape,  Vector2 durations) 
+    private void CreateSatelliteFor ([NotNull] Shape focalShape,  Vector3 durations) 
     {
         SetupColor(focalShape);
         if (focalShape == null) throw new ArgumentNullException(nameof(focalShape));
@@ -188,15 +190,26 @@ public abstract class SpawnZone : PersistableObject
         }
     }
     
-    void SetupLifecycle (Shape shape,  Vector2 durations) 
+    void SetupLifecycle (Shape shape,  Vector3 durations) 
     {
         if (durations.x > 0f) 
         {
-            shape.AddBehavior<GrowingShapeBehavior>().Initialize(shape, durations.x);
+            if (durations.y > 0f || durations.z > 0f) 
+            {
+                shape.AddBehavior<LifecycleShapeBehavior>().Initialize(shape, durations.x, durations.y, durations.z);
+            }
+            else 
+            {
+                shape.AddBehavior<GrowingShapeBehavior>().Initialize(shape, durations.x);
+            }
         }
         else if (durations.y > 0f) 
         {
-            shape.AddBehavior<DyingShapeBehavior>().Initialize(shape, durations.y);
+            shape.AddBehavior<LifecycleShapeBehavior>().Initialize(shape, durations.x, durations.y, durations.z);
+        }
+        else if (durations.z > 0f) 
+        {
+            shape.AddBehavior<DyingShapeBehavior>().Initialize(shape, durations.z);
         }
     }
 }

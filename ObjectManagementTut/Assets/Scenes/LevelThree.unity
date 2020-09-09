@@ -168,13 +168,13 @@ MonoBehaviour:
       max: 2
     color:
       hue:
-        min: 0.1
+        min: 0.35321033
         max: 1
       saturation:
-        min: 0.1
+        min: 0.44002533
         max: 1
       value:
-        min: 0.1
+        min: 0.34597576
         max: 1
     oscillationDirection: 2
     oscillationAmplitude:
@@ -198,7 +198,13 @@ MonoBehaviour:
         max: 0.5
     lifecycle:
       growingDuration:
-        min: 0
+        min: 1
+        max: 2
+      adultDuration:
+        min: 1
+        max: 5
+      dyingDuration:
+        min: 1
         max: 2
   spawnZones:
   - {fileID: 6224058095471247855}
@@ -243,6 +249,11 @@ PrefabInstance:
       propertyPath: persistentObjects.Array.data[0]
       value: 
       objectReference: {fileID: 636158436}
+    - target: {fileID: 561902813624644176, guid: de89e82511917491682c6eed147078bc,
+        type: 3}
+      propertyPath: populationLimit
+      value: 1000
+      objectReference: {fileID: 0}
     - target: {fileID: 1267215409277567233, guid: de89e82511917491682c6eed147078bc,
         type: 3}
       propertyPath: m_Name
@@ -473,6 +484,12 @@ MonoBehaviour:
       growingDuration:
         min: 0
         max: 0
+      adultDuration:
+        min: 0
+        max: 0
+      dyingDuration:
+        min: 0
+        max: 0
   surfaceOnly: 0
 --- !u!4 &3205300851021461310
 Transform:
@@ -578,6 +595,12 @@ MonoBehaviour:
       growingDuration:
         min: 0
         max: 2
+      adultDuration:
+        min: 0
+        max: 0
+      dyingDuration:
+        min: 0
+        max: 0
   surfaceOnly: 0
 --- !u!1 &7272635840114278457
 GameObject:
@@ -655,6 +678,12 @@ MonoBehaviour:
       growingDuration:
         min: 0
         max: 0
+      adultDuration:
+        min: 0
+        max: 0
+      dyingDuration:
+        min: 0
+        max: 0
   surfaceOnly: 0
 --- !u!4 &7272635840114278459
 Transform:
@@ -717,8 +746,8 @@ MonoBehaviour:
         min: 0
         max: 0
       RelativeScale:
-        min: 0
-        max: 0
+        min: 0.1
+        max: 0.1
       OrbitRadius:
         min: 0
         max: 0
@@ -727,6 +756,12 @@ MonoBehaviour:
         max: 0
     lifecycle:
       growingDuration:
+        min: 0
+        max: 0
+      adultDuration:
+        min: 0
+        max: 0
+      dyingDuration:
         min: 0
         max: 0
   surfaceOnly: 0

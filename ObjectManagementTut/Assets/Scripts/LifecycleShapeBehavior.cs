@@ -4,7 +4,7 @@ using UnityEngine;
 
 public sealed class LifecycleShapeBehavior : ShapeBehaviour
 {
-    private Vector3 _originalScale;
+   
     private float _adultDuration, _dyingDuration, _dyingAge;
     public override ShapeBehaviorType BehaviorType => ShapeBehaviorType.Growing;
 
@@ -12,39 +12,38 @@ public sealed class LifecycleShapeBehavior : ShapeBehaviour
     {
         _adultDuration = adultDuration;
         _dyingDuration = dyingDuration;
-        _dyingAge = growingDuration + adultDuration;
+        _dyingAge = growingDuration + _adultDuration;
 		
-        if (growingDuration > 0f) {
-            shape.AddBehavior<GrowingShapeBehavior>().Initialize(
-                shape, growingDuration
-            );
+        if (growingDuration > 0f) 
+        {
+            shape.AddBehavior<GrowingShapeBehavior>().Initialize(shape, growingDuration);
         }
     }
     
     public override bool GameUpdate (Shape shape) 
     {
-        float dyingDuration = shape.Age - _dyingAge;
-        if (dyingDuration < _dyingDuration) 
+        if (shape.Age >= _dyingAge) 
         {
-            float s = 1f - dyingDuration / _dyingDuration;
-            s = (3f - 2f * s) * s * s;
-            shape.transform.localScale = s * _originalScale;
-            return true;
+            if (_dyingDuration <= 0f) 
+            {
+                shape.Die();
+                return true;
+            }
+            shape.AddBehavior<DyingShapeBehavior>().Initialize(shape, _dyingDuration + _dyingAge - shape.Age);
         }
-        shape.Die();
-        return true;
+        return false;
     }
 
     public override void Save(GameDataWriter writer)
     {
-        writer.Write(_originalScale);
+        writer.Write(_adultDuration);
         writer.Write(_dyingDuration);
         writer.Write(_dyingAge);
     }
 
     public override void Load(GameDataReader reader)
     {
-        _originalScale = reader.ReadVector();
+        _adultDuration = reader.ReadFloat();
         _dyingDuration = reader.ReadFloat();
         _dyingAge = reader.ReadFloat();
     }
