@@ -228,5 +228,9 @@ public class Shape : PersistableObject
     {
         Game.Instance.Kill(this);
     }
-
+    public void MarkAsDying () 
+    {
+        Game.Instance.MarkAsDying(this);
+    }
+    public bool IsMarkedAsDying => Game.Instance.IsMarkedAsDying(this);
 }

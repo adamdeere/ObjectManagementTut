@@ -29,7 +29,11 @@ public sealed class LifecycleShapeBehavior : ShapeBehaviour
                 shape.Die();
                 return true;
             }
-            shape.AddBehavior<DyingShapeBehavior>().Initialize(shape, _dyingDuration + _dyingAge - shape.Age);
+            if (!shape.IsMarkedAsDying) 
+            {
+                shape.AddBehavior<DyingShapeBehavior>().Initialize(shape, _dyingDuration + _dyingAge - shape.Age);
+            }
+         
         }
         return false;
     }

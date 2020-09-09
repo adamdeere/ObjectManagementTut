@@ -11,6 +11,7 @@ public sealed class DyingShapeBehavior : ShapeBehaviour
         _originalScale = shape.transform.localScale;
         _duration = duration;
         _dyingAge = shape.Age;
+        shape.MarkAsDying();
     }
     
     public override bool GameUpdate (Shape shape) 

@@ -187,15 +187,16 @@ MonoBehaviour:
       amount:
         min: 0
         max: 3
-      RelativeScale:
+      relativeScale:
         min: 0.1
         max: 0.5
-      OrbitRadius:
+      orbitRadius:
         min: 1
         max: 2
-      OrbitFrequency:
+      orbitFrequency:
         min: 0.25
         max: 0.5
+      uniformLifecycles: 1
     lifecycle:
       growingDuration:
         min: 1
@@ -471,15 +472,16 @@ MonoBehaviour:
       amount:
         min: 0
         max: 0
-      RelativeScale:
+      relativeScale:
         min: 0
         max: 0
-      OrbitRadius:
+      orbitRadius:
         min: 0
         max: 0
-      OrbitFrequency:
+      orbitFrequency:
         min: 0
         max: 0
+      uniformLifecycles: 0
     lifecycle:
       growingDuration:
         min: 0
@@ -582,15 +584,16 @@ MonoBehaviour:
       amount:
         min: 0
         max: 0
-      RelativeScale:
+      relativeScale:
         min: 0.1
         max: 0.1
-      OrbitRadius:
+      orbitRadius:
         min: 0
         max: 0
-      OrbitFrequency:
+      orbitFrequency:
         min: 0
         max: 0
+      uniformLifecycles: 0
     lifecycle:
       growingDuration:
         min: 0
@@ -665,15 +668,16 @@ MonoBehaviour:
       amount:
         min: 0
         max: 0
-      RelativeScale:
+      relativeScale:
         min: 0
         max: 0
-      OrbitRadius:
+      orbitRadius:
         min: 0
         max: 0
-      OrbitFrequency:
+      orbitFrequency:
         min: 0
         max: 0
+      uniformLifecycles: 0
     lifecycle:
       growingDuration:
         min: 0
@@ -745,15 +749,16 @@ MonoBehaviour:
       amount:
         min: 0
         max: 0
-      RelativeScale:
+      relativeScale:
         min: 0.1
         max: 0.1
-      OrbitRadius:
+      orbitRadius:
         min: 0
         max: 0
-      OrbitFrequency:
+      orbitFrequency:
         min: 0
         max: 0
+      uniformLifecycles: 0
     lifecycle:
       growingDuration:
         min: 0

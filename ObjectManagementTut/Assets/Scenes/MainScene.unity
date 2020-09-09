@@ -418,6 +418,7 @@ MonoBehaviour:
   creationSpeedSlider: {fileID: 92777848}
   destructionSpeedSlider: {fileID: 456878023}
   levelCount: 3
+  destroyDuration: 1
   reseedOnLoad: 1
 --- !u!4 &180250720
 Transform:

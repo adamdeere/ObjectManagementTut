@@ -1,6 +1,7 @@
 ﻿using System;
 using JetBrains.Annotations;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 [Serializable]
@@ -30,12 +31,14 @@ public struct SatelliteConfiguration
 {
     public IntRange amount;
     
-    [FloatRangeSlider(0.1f, 1f)]
-    public FloatRange RelativeScale;
+    [FormerlySerializedAs("RelativeScale")] [FloatRangeSlider(0.1f, 1f)]
+    public FloatRange relativeScale;
 
-    public FloatRange OrbitRadius;
+    [FormerlySerializedAs("OrbitRadius")] public FloatRange orbitRadius;
 
-    public FloatRange OrbitFrequency;
+    [FormerlySerializedAs("OrbitFrequency")] public FloatRange orbitFrequency;
+    
+    public bool uniformLifecycles;
    
 }
 [Serializable]
@@ -125,8 +128,10 @@ public abstract class SpawnZone : PersistableObject
         var lifecycleDurations = spawnConfig.lifecycle.RandomDurations;
       //  SetupOscillation(shape);
         var satelliteCount = spawnConfig.satellite.amount.RandomValueInRange;
-        for (var i = 0; i < satelliteCount; i++) 
-          CreateSatelliteFor(shape, lifecycleDurations);
+        for (int i = 0; i < satelliteCount; i++) 
+        {
+            CreateSatelliteFor(shape, spawnConfig.satellite.uniformLifecycles ? lifecycleDurations : spawnConfig.lifecycle.RandomDurations);
+        }
       
         SetupLifecycle(shape, lifecycleDurations);
       
@@ -170,9 +175,9 @@ public abstract class SpawnZone : PersistableObject
         var shape = spawnConfig.factories[factoryIndex].GetRandom();
         var t = shape.transform;
         t.localRotation = Random.rotation;
-        t.localScale = focalShape.transform.localScale * spawnConfig.satellite.RelativeScale.RandomValueInRange;
+        t.localScale = focalShape.transform.localScale * spawnConfig.satellite.relativeScale.RandomValueInRange;
         SetupColor(shape);
-        shape.AddBehavior<SatelliteShapeBehavior>().Initialize(shape, focalShape, spawnConfig.satellite.OrbitRadius.RandomValueInRange, spawnConfig.satellite.OrbitFrequency.RandomValueInRange);
+        shape.AddBehavior<SatelliteShapeBehavior>().Initialize(shape, focalShape, spawnConfig.satellite.orbitRadius.RandomValueInRange, spawnConfig.satellite.orbitFrequency.RandomValueInRange);
         SetupLifecycle(shape, durations);
     }
     void SetupColor (Shape shape) 
