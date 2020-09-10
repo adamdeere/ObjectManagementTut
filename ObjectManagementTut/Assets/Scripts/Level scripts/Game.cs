@@ -4,6 +4,7 @@ using UnityEngine.Serialization;
 using UnityEngine.SceneManagement;
 using System.Collections;
 using Object_script;
+using Shape_behaviours;
 using Random = UnityEngine.Random;
 using UnityEngine.UI;
 

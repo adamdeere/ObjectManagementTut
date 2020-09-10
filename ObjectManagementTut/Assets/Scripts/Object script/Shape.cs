@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Shape_behaviours;
 using UnityEngine;
 
 namespace Object_script
@@ -238,7 +239,7 @@ namespace Object_script
         public bool IsMarkedAsDying => Game.Instance.IsMarkedAsDying(this);
         public void Kill()
         {
-            Die();
+            Game.Instance.Kill(this);
         }
 
         public void AddInterface(float duration)

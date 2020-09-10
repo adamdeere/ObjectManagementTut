@@ -1,50 +1,53 @@
 ﻿using Object_script;
 using UnityEngine;
 
-public sealed class DyingShapeBehavior : ShapeBehaviour
+namespace Shape_behaviours
 {
-    private Vector3 _originalScale;
-    private float _duration, _dyingAge;
-    public override ShapeBehaviorType BehaviorType => ShapeBehaviorType.Growing;
+    public sealed class DyingShapeBehavior : ShapeBehaviour
+    {
+        private Vector3 _originalScale;
+        private float _duration, _dyingAge;
+        public override ShapeBehaviorType BehaviorType => ShapeBehaviorType.Growing;
 
-    public void Initialize (Shape shape, float duration) 
-    {
-        _originalScale = shape.transform.localScale;
-        _duration = duration;
-        _dyingAge = shape.Age;
-        shape.MarkAsDying();
-    }
-    
-    public override bool GameUpdate (Shape shape) 
-    {
-        float dyingDuration = shape.Age - _dyingAge;
-        if (dyingDuration < _duration) 
+        public void Initialize (Shape shape, float duration) 
         {
-            float s = 1f - dyingDuration / _duration;
-            s = (3f - 2f * s) * s * s;
-            shape.transform.localScale = s * _originalScale;
+            _originalScale = shape.transform.localScale;
+            _duration = duration;
+            _dyingAge = shape.Age;
+            shape.MarkAsDying();
+        }
+    
+        public override bool GameUpdate (Shape shape) 
+        {
+            float dyingDuration = shape.Age - _dyingAge;
+            if (dyingDuration < _duration) 
+            {
+                float s = 1f - dyingDuration / _duration;
+                s = (3f - 2f * s) * s * s;
+                shape.transform.localScale = s * _originalScale;
+                return true;
+            }
+            shape.Die();
             return true;
         }
-        shape.Die();
-        return true;
-    }
 
-    public override void Save(GameDataWriter writer)
-    {
-        writer.Write(_originalScale);
-        writer.Write(_duration);
-        writer.Write(_dyingAge);
-    }
+        public override void Save(GameDataWriter writer)
+        {
+            writer.Write(_originalScale);
+            writer.Write(_duration);
+            writer.Write(_dyingAge);
+        }
 
-    public override void Load(GameDataReader reader)
-    {
-        _originalScale = reader.ReadVector();
-        _duration = reader.ReadFloat();
-        _dyingAge = reader.ReadFloat();
-    }
+        public override void Load(GameDataReader reader)
+        {
+            _originalScale = reader.ReadVector();
+            _duration = reader.ReadFloat();
+            _dyingAge = reader.ReadFloat();
+        }
 
-    public override void Recycle () 
-    {
-        ShapeBehaviourPool<DyingShapeBehavior>.Reclaim(this);
+        public override void Recycle () 
+        {
+            ShapeBehaviourPool<DyingShapeBehavior>.Reclaim(this);
+        }
     }
 }
