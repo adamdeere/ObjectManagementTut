@@ -3,5 +3,6 @@
     public interface IKillable
     {
         void Kill();
+        void AddInterface(float duration);
     }
 }

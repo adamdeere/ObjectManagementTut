@@ -4,10 +4,19 @@ namespace Object_script
 {
     public class KillZone : MonoBehaviour
     {
+        [SerializeField] private float dyingDuration;
         public void OnTriggerEnter (Collider other) 
         {
-            var shape = other.GetComponent<IKillable>();
-            shape?.Kill();
+            IKillable shapeComponent = other.GetComponent<IKillable>();
+            Shape shape = other.GetComponent<Shape>();
+            if (dyingDuration <= 0f) 
+            {
+                shapeComponent?.Kill();
+            }
+            else if (!shape.IsMarkedAsDying)
+            {
+                shapeComponent?.AddInterface(dyingDuration);
+            }
         }
     }
 }

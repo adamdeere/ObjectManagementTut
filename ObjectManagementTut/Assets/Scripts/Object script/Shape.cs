@@ -240,5 +240,10 @@ namespace Object_script
         {
             Die();
         }
+
+        public void AddInterface(float duration)
+        { 
+            AddBehavior<DyingShapeBehavior>().Initialize(this, duration);
+        }
     }
 }
