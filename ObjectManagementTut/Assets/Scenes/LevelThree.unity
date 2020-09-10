@@ -207,6 +207,7 @@ MonoBehaviour:
       dyingDuration:
         min: 1
         max: 2
+  spawnSpeed: 0
   spawnZones:
   - {fileID: 6224058095471247855}
   - {fileID: 8789263653622043572}
@@ -253,7 +254,7 @@ PrefabInstance:
     - target: {fileID: 561902813624644176, guid: de89e82511917491682c6eed147078bc,
         type: 3}
       propertyPath: populationLimit
-      value: 1000
+      value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 1267215409277567233, guid: de89e82511917491682c6eed147078bc,
         type: 3}
@@ -473,8 +474,8 @@ MonoBehaviour:
         min: 0
         max: 0
       relativeScale:
-        min: 0
-        max: 0
+        min: 0.1
+        max: 0.1
       orbitRadius:
         min: 0
         max: 0
@@ -492,6 +493,7 @@ MonoBehaviour:
       dyingDuration:
         min: 0
         max: 0
+  spawnSpeed: 50
   surfaceOnly: 0
 --- !u!4 &3205300851021461310
 Transform:
@@ -604,6 +606,7 @@ MonoBehaviour:
       dyingDuration:
         min: 0
         max: 0
+  spawnSpeed: 0
   surfaceOnly: 0
 --- !u!1 &7272635840114278457
 GameObject:
@@ -669,8 +672,8 @@ MonoBehaviour:
         min: 0
         max: 0
       relativeScale:
-        min: 0
-        max: 0
+        min: 0.1
+        max: 0.1
       orbitRadius:
         min: 0
         max: 0
@@ -688,6 +691,7 @@ MonoBehaviour:
       dyingDuration:
         min: 0
         max: 0
+  spawnSpeed: 50
   surfaceOnly: 0
 --- !u!4 &7272635840114278459
 Transform:
@@ -769,6 +773,7 @@ MonoBehaviour:
       dyingDuration:
         min: 0
         max: 0
+  spawnSpeed: 0
   surfaceOnly: 0
 --- !u!1 &8789263653622043573
 GameObject:

@@ -1,120 +1,125 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Random = UnityEngine.Random;
 
-[CreateAssetMenu]
-public class ShapeFactory : ScriptableObject
+namespace Object_script
 {
-    [SerializeField] private Shape[] prefabs;
-    [SerializeField] private Material[] materials;
-    [SerializeField] private bool recycle;
-    private List<Shape>[] _pools;
-    private Scene _poolScene;
-    [System.NonSerialized]
-    int factoryId = int.MinValue;
-    
-    public int FactoryId 
+    [CreateAssetMenu]
+    public class ShapeFactory : ScriptableObject
     {
-        get => factoryId;
-        set 
+        [SerializeField] private Shape[] prefabs;
+        [SerializeField] private Material[] materials;
+        [SerializeField] private bool recycle;
+        private List<Shape>[] _pools;
+        private Scene _poolScene;
+        [NonSerialized]
+        int factoryId = int.MinValue;
+    
+        public int FactoryId 
         {
-            if (factoryId == int.MinValue && value != int.MinValue) 
+            get => factoryId;
+            set 
             {
-                factoryId = value;
-            }
-            else 
-            {
-                Debug.Log("Not allowed to change factoryId.");
+                if (factoryId == int.MinValue && value != int.MinValue) 
+                {
+                    factoryId = value;
+                }
+                else 
+                {
+                    Debug.Log("Not allowed to change factoryId.");
+                }
             }
         }
-    }
 	
     
     
-    public Shape Get(int shapeId = 0, int materialId = 0)
-    {
-        Shape instance;
-        if (recycle) 
+        public Shape Get(int shapeId = 0, int materialId = 0)
         {
-            if (_pools == null) 
+            Shape instance;
+            if (recycle) 
             {
-                CreatePools();
-            }
-            List<Shape> pool = _pools[shapeId];
-            int lastIndex = pool.Count - 1;
-            if (lastIndex >= 0) 
-            {
-                instance = pool[lastIndex];
-                instance.gameObject.SetActive(true);
-                pool.RemoveAt(lastIndex);
+                if (_pools == null) 
+                {
+                    CreatePools();
+                }
+                List<Shape> pool = _pools[shapeId];
+                int lastIndex = pool.Count - 1;
+                if (lastIndex >= 0) 
+                {
+                    instance = pool[lastIndex];
+                    instance.gameObject.SetActive(true);
+                    pool.RemoveAt(lastIndex);
+                }
+                else 
+                {
+                    instance = Instantiate(prefabs[shapeId]);
+                    instance.OriginFactory = this;
+                    instance.ShapeId = shapeId;
+                    SceneManager.MoveGameObjectToScene(instance.gameObject, _poolScene);
+                }
             }
             else 
             {
                 instance = Instantiate(prefabs[shapeId]);
-                instance.OriginFactory = this;
                 instance.ShapeId = shapeId;
-                SceneManager.MoveGameObjectToScene(instance.gameObject, _poolScene);
             }
+            instance.SetMaterial(materials[materialId], materialId);
+            Game.Instance.AddShape(instance);
+            return instance;
         }
-        else 
-        {
-            instance = Instantiate(prefabs[shapeId]);
-            instance.ShapeId = shapeId;
-        }
-        instance.SetMaterial(materials[materialId], materialId);
-        Game.Instance.AddShape(instance);
-        return instance;
-    }
   
-    public void Reclaim (Shape shapeToRecycle) 
-    {
-        if (shapeToRecycle.OriginFactory != this) 
+        public void Reclaim (Shape shapeToRecycle) 
         {
-            Debug.LogError("Tried to reclaim shape with wrong factory.");
-            return;
-        }
-        
-        if (recycle) 
-        {
-            if (_pools == null) 
-                CreatePools();
-            
-            _pools[shapeToRecycle.ShapeId].Add(shapeToRecycle);
-            shapeToRecycle.gameObject.SetActive(false);
-            
-        }
-        else 
-            Destroy(shapeToRecycle.gameObject);
-        
-    }
-    public Shape GetRandom () 
-    {
-        return Get(Random.Range(0, prefabs.Length), Random.Range(0, materials.Length));
-    }
-    void CreatePools () 
-    {
-        _pools = new List<Shape>[prefabs.Length];
-        if (Application.isEditor) 
-        {
-            _poolScene = SceneManager.GetSceneByName(name);
-            if (_poolScene.isLoaded)
+            if (shapeToRecycle.OriginFactory != this) 
             {
-                GameObject[] rootObjects = _poolScene.GetRootGameObjects();
-                foreach (var t in rootObjects)
-                {
-                    Shape pooledShape = t.GetComponent<Shape>();
-                    if (!pooledShape.gameObject.activeSelf) 
-                    {
-                        _pools[pooledShape.ShapeId].Add(pooledShape);
-                    }
-                }
+                Debug.LogError("Tried to reclaim shape with wrong factory.");
                 return;
             }
+        
+            if (recycle) 
+            {
+                if (_pools == null) 
+                    CreatePools();
+            
+                _pools[shapeToRecycle.ShapeId].Add(shapeToRecycle);
+                shapeToRecycle.gameObject.SetActive(false);
+            
+            }
+            else 
+                Destroy(shapeToRecycle.gameObject);
+        
         }
-        _poolScene = SceneManager.CreateScene(name);
-        for (int i = 0; i < _pools.Length; i++) 
+        public Shape GetRandom () 
         {
-            _pools[i] = new List<Shape>();
+            return Get(Random.Range(0, prefabs.Length), Random.Range(0, materials.Length));
+        }
+        void CreatePools () 
+        {
+            _pools = new List<Shape>[prefabs.Length];
+            if (Application.isEditor) 
+            {
+                _poolScene = SceneManager.GetSceneByName(name);
+                if (_poolScene.isLoaded)
+                {
+                    GameObject[] rootObjects = _poolScene.GetRootGameObjects();
+                    foreach (var t in rootObjects)
+                    {
+                        Shape pooledShape = t.GetComponent<Shape>();
+                        if (!pooledShape.gameObject.activeSelf) 
+                        {
+                            _pools[pooledShape.ShapeId].Add(pooledShape);
+                        }
+                    }
+                    return;
+                }
+            }
+            _poolScene = SceneManager.CreateScene(name);
+            for (int i = 0; i < _pools.Length; i++) 
+            {
+                _pools[i] = new List<Shape>();
+            }
         }
     }
 }

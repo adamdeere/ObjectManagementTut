@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.SceneManagement;
 using System.Collections;
+using Object_script;
 using Random = UnityEngine.Random;
 using UnityEngine.UI;
 
@@ -51,7 +52,7 @@ public class Game : PersistableObject
     [SerializeField] Slider destructionSpeedSlider;
     private string _savePath;
     public int levelCount;
-    public static int SaveVersion { get; } = 6;
+    public static int SaveVersion { get; } = 7;
     public float CreationSpeed { get; set; }
   
     private int _loadedLevelBuildIndex;

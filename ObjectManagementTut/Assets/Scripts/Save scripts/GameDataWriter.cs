@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using Object_script;
 using UnityEngine;
 public class GameDataWriter 
 {

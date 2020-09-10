@@ -362,7 +362,7 @@ MonoBehaviour:
   m_MinValue: 0
   m_MaxValue: 10
   m_WholeNumbers: 0
-  m_Value: 0
+  m_Value: 7.2
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
@@ -417,7 +417,7 @@ MonoBehaviour:
   storage: {fileID: 1776408717}
   creationSpeedSlider: {fileID: 92777848}
   destructionSpeedSlider: {fileID: 456878023}
-  levelCount: 3
+  levelCount: 2
   destroyDuration: 1
   reseedOnLoad: 1
 --- !u!4 &180250720

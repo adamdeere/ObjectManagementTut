@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Object_script;
+using UnityEngine;
 
 public sealed class DyingShapeBehavior : ShapeBehaviour
 {

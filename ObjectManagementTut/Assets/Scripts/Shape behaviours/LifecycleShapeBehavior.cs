@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Object_script;
 using UnityEngine;
 
 public sealed class LifecycleShapeBehavior : ShapeBehaviour

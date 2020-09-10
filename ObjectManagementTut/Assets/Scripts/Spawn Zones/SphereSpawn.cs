@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Spawn_Zones;
+using UnityEngine;
 
 public class SphereSpawn : SpawnZone
 {

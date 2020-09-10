@@ -1,62 +1,70 @@
 ﻿using UnityEngine;
 
-public class CompositeSpawnZone : SpawnZone
+namespace Spawn_Zones
 {
-    [SerializeField] private SpawnZone[] spawnZones;
-    [SerializeField] private bool sequential;
-    [SerializeField] private bool overrideConfig;
-    private int _nextSequentialIndex;
-    public override Vector3 SpawnPoint 
+    public class CompositeSpawnZone : SpawnZone
     {
-        get 
+        [SerializeField] private SpawnZone[] spawnZones;
+        [SerializeField] private bool sequential;
+        [SerializeField] private bool overrideConfig;
+        private int _nextSequentialIndex;
+        public override Vector3 SpawnPoint 
         {
-            int index;
-            if (sequential) 
+            get 
             {
-                index = _nextSequentialIndex++;
-                if (_nextSequentialIndex >= spawnZones.Length) 
+                int index;
+                if (sequential) 
                 {
-                    _nextSequentialIndex = 0;
+                    index = _nextSequentialIndex++;
+                    if (_nextSequentialIndex >= spawnZones.Length) 
+                    {
+                        _nextSequentialIndex = 0;
+                    }
                 }
+                else 
+                {
+                    index = Random.Range(0, spawnZones.Length);
+                }
+                return spawnZones[index].SpawnPoint;
             }
-            else 
-            {
-                index = Random.Range(0, spawnZones.Length);
-            }
-            return spawnZones[index].SpawnPoint;
         }
-    }
     
-    public override void SpawnShape () 
-    {
-        if (overrideConfig) 
-             base.SpawnShape();
-        
-        else 
+        public override void SpawnShape () 
         {
-            int index;
-            if (sequential) 
-            {
-                index = _nextSequentialIndex++;
-                if (_nextSequentialIndex >= spawnZones.Length) 
-                {
-                    _nextSequentialIndex = 0;
-                }
-            }
+            if (overrideConfig) 
+                base.SpawnShape();
+        
             else 
-            { 
-                index = Random.Range(0, spawnZones.Length);
+            {
+                int index;
+                if (sequential) 
+                {
+                    index = _nextSequentialIndex++;
+                    if (_nextSequentialIndex >= spawnZones.Length) 
+                    {
+                        _nextSequentialIndex = 0;
+                    }
+                }
+                else 
+                { 
+                    index = Random.Range(0, spawnZones.Length);
+                }
+                spawnZones[index].SpawnShape();
             }
-             spawnZones[index].SpawnShape();
         }
-    }
-    public override void Save (GameDataWriter writer) 
-    {
-        writer.Write(_nextSequentialIndex);
-    }
+        public override void Save (GameDataWriter writer) 
+        {
+            base.Save(writer);
+            writer.Write(_nextSequentialIndex);
+        }
 
-    public override void Load (GameDataReader reader) 
-    {
-        _nextSequentialIndex = reader.ReadInt();
+        public override void Load (GameDataReader reader) 
+        {
+            if (reader.Version >= 7)
+            {
+                base.Load(reader);
+            }
+            _nextSequentialIndex = reader.ReadInt();
+        }
     }
 }
