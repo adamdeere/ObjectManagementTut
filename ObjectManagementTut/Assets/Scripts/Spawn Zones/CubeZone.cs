@@ -1,30 +1,30 @@
-﻿using Spawn_Zones;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class CubeZone : SpawnZone
+namespace Spawn_Zones
 {
-    [SerializeField] private bool surfaceOnly;
-    public override Vector3 SpawnPoint 
+    public class CubeZone : SpawnZone
     {
-        get 
+        [SerializeField] private bool surfaceOnly;
+        public override Vector3 SpawnPoint 
         {
-            Vector3 p;
-            p.x = Random.Range(-0.5f, 0.5f);
-            p.y = Random.Range(-0.5f, 0.5f);
-            p.z = Random.Range(-0.5f, 0.5f);
-            if (surfaceOnly) 
+            get 
             {
+                Vector3 p;
+                p.x = Random.Range(-0.5f, 0.5f);
+                p.y = Random.Range(-0.5f, 0.5f);
+                p.z = Random.Range(-0.5f, 0.5f);
+                if (!surfaceOnly) return transform.TransformPoint(p);
                 int axis = Random.Range(0, 3);
                 p[axis] = p[axis] < 0f ? -0.5f : 0.5f;
+                return transform.TransformPoint(p);
             }
-            return transform.TransformPoint(p);
         }
-    }
     
-    void OnDrawGizmos () 
-    {
-        Gizmos.color = Color.cyan;
-        Gizmos.matrix = transform.localToWorldMatrix;
-        Gizmos.DrawWireCube(Vector3.zero, Vector3.one);
+        void OnDrawGizmos () 
+        {
+            Gizmos.color = Color.cyan;
+            Gizmos.matrix = transform.localToWorldMatrix;
+            Gizmos.DrawWireCube(Vector3.zero, Vector3.one);
+        }
     }
 }

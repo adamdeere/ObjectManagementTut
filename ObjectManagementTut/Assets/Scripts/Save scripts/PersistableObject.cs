@@ -1,21 +1,24 @@
 ﻿using UnityEngine;
 
-[DisallowMultipleComponent]
-public class PersistableObject : MonoBehaviour
+namespace Save_scripts
 {
-    public virtual void Save (GameDataWriter writer) 
+    [DisallowMultipleComponent]
+    public class PersistableObject : MonoBehaviour
     {
-        writer.Write(transform.localPosition);
-        writer.Write(transform.localRotation);
-        writer.Write(transform.localScale);
-    }
+        public virtual void Save (GameDataWriter writer) 
+        {
+            writer.Write(transform.localPosition);
+            writer.Write(transform.localRotation);
+            writer.Write(transform.localScale);
+        }
 
-    public virtual void Load (GameDataReader reader)
-    {
-        transform.localPosition = reader.ReadVector();
-        transform.localRotation = reader.ReadQuaternion();
-        transform.localScale = reader.ReadVector();
+        public virtual void Load (GameDataReader reader)
+        {
+            transform.localPosition = reader.ReadVector();
+            transform.localRotation = reader.ReadQuaternion();
+            transform.localScale = reader.ReadVector();
 
+        }
     }
 }
 

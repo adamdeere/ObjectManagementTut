@@ -1,368 +1,369 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.Serialization;
-using UnityEngine.SceneManagement;
-using System.Collections;
+﻿using System.Collections;
+using System.Collections.Generic;
 using Object_script;
+using Save_scripts;
 using Shape_behaviours;
-using Random = UnityEngine.Random;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-public enum ShapeBehaviorType 
+namespace Level_scripts
 {
-    Movement,
-    Rotation,
-    Oscillation,
-    Satellite,
-    Growing
-}
-
-public static class ShapeBehaviorTypeMethods
-{
-    public static ShapeBehaviour GetInstance (this ShapeBehaviorType type) 
+    public enum ShapeBehaviorType 
     {
-        switch (type) 
-        {
-            case ShapeBehaviorType.Movement:
-                return ShapeBehaviourPool<MovementBehaviour>.Get();
-            case ShapeBehaviorType.Rotation:
-                return ShapeBehaviourPool<RotationBehaviour>.Get();
-            case ShapeBehaviorType.Oscillation:
-                return ShapeBehaviourPool<OcscillationShapeBehaviour>.Get();
-            case ShapeBehaviorType.Satellite:
-                return ShapeBehaviourPool<SatelliteShapeBehavior>.Get();
-            case ShapeBehaviorType.Growing:
-                return ShapeBehaviourPool<GrowingShapeBehavior>.Get();
-        }
-        Debug.Log("Forgot to support " + type);
-        return null;
+        Movement,
+        Rotation,
+        Oscillation,
+        Satellite,
+        Growing
     }
-}
-public class Game : PersistableObject
-{
-    [SerializeField] private ShapeFactory[] shapeFactories;
-    public KeyCode createKey = KeyCode.C;
-    public KeyCode newGameKey = KeyCode.N;
-    public KeyCode saveGame = KeyCode.S;
-    public KeyCode destroyKey = KeyCode.X;
-    [FormerlySerializedAs("LoadGame")] public KeyCode loadGame = KeyCode.L;
-    private List<Shape> _shapeList;
-    private List<ShapeInstance> killList, markAsDyingList;
-    [SerializeField] private PersistentStorage storage;
-    [SerializeField] Slider creationSpeedSlider;
-    [SerializeField] Slider destructionSpeedSlider;
-    private string _savePath;
-    public int levelCount;
-    public static int SaveVersion { get; } = 7;
-    public float CreationSpeed { get; set; }
-  
-    private int _loadedLevelBuildIndex;
-    public float DestructionSpeed { get; set; }
-    float _creationProgress, _destructionProgress;
-    private Random.State _mainRandomState;
-    private bool inGameUpdateLoop;
-    public static Game Instance { get; private set; }
-    private int dyingShapeCount;
-    
-    [SerializeField] private float destroyDuration;
 
-    [FormerlySerializedAs("ReseedOnLoad")] [SerializeField] private bool reseedOnLoad;
-
-    private void OnEnable()
+    public static class ShapeBehaviorTypeMethods
     {
-        Instance = this;
-        if (shapeFactories[0].FactoryId != 0) 
+        public static ShapeBehaviour GetInstance (this ShapeBehaviorType type) 
         {
-            for (int i = 0; i < shapeFactories.Length; i++) 
+            switch (type) 
             {
-                shapeFactories[i].FactoryId = i;
+                case ShapeBehaviorType.Movement:
+                    return ShapeBehaviourPool<MovementBehaviour>.Get();
+                case ShapeBehaviorType.Rotation:
+                    return ShapeBehaviourPool<RotationBehaviour>.Get();
+                case ShapeBehaviorType.Oscillation:
+                    return ShapeBehaviourPool<OcscillationShapeBehaviour>.Get();
+                case ShapeBehaviorType.Satellite:
+                    return ShapeBehaviourPool<SatelliteShapeBehavior>.Get();
+                case ShapeBehaviorType.Growing:
+                    return ShapeBehaviourPool<GrowingShapeBehavior>.Get();
             }
+            Debug.Log("Forgot to support " + type);
+            return null;
         }
     }
-
-    // Start is called before the first frame update
-    public void Start()
-    { 
-        _mainRandomState = Random.state;
-        _shapeList = new List<Shape>();
-        killList = new List<ShapeInstance>();
-        markAsDyingList = new List<ShapeInstance>();
-        NewGame();
-        StartCoroutine(LoadLevel(levelCount));
-    }
-
-    public void Update () 
+    public class Game : PersistableObject
     {
-        #region all keyboard inputs
-        if (Input.GetKeyDown(createKey)) 
+        [SerializeField] private ShapeFactory[] shapeFactories;
+        public KeyCode createKey = KeyCode.C;
+        public KeyCode newGameKey = KeyCode.N;
+        public KeyCode saveGame = KeyCode.S;
+        public KeyCode destroyKey = KeyCode.X;
+        [FormerlySerializedAs("LoadGame")] public KeyCode loadGame = KeyCode.L;
+        private List<Shape> _shapeList;
+        private List<ShapeInstance> killList, markAsDyingList;
+        [SerializeField] private PersistentStorage storage;
+        [SerializeField] Slider creationSpeedSlider;
+        [SerializeField] Slider destructionSpeedSlider;
+        private string _savePath;
+        public int levelCount;
+        public static int SaveVersion { get; } = 7;
+        public float CreationSpeed { get; set; }
+  
+        private int _loadedLevelBuildIndex;
+        public float DestructionSpeed { get; set; }
+        float _creationProgress, _destructionProgress;
+        private Random.State _mainRandomState;
+        private bool inGameUpdateLoop;
+        public static Game Instance { get; private set; }
+        private int dyingShapeCount;
+    
+        [SerializeField] private float destroyDuration;
+
+        [FormerlySerializedAs("ReseedOnLoad")] [SerializeField] private bool reseedOnLoad;
+
+        private void OnEnable()
         {
-            GameLevel.Current.SpawnShape();
-        }
-        else if (Input.GetKeyDown(newGameKey)) 
-        {
-            NewGame();
-            StartCoroutine(LoadLevel(_loadedLevelBuildIndex));
-        }
-        else if (Input.GetKeyDown(saveGame)) 
-        {
-            storage.Save(this, SaveVersion);
-        }
-        else if (Input.GetKeyDown(destroyKey))
-        {
-            DestroyShape();
-        }
-        else if (Input.GetKeyDown(loadGame)) 
-        {
-            NewGame();
-            storage.Load(this);
-        }
-        else 
-        {
-            for (int i = 1; i <= levelCount; i++) 
+            Instance = this;
+            if (shapeFactories[0].FactoryId != 0) 
             {
-                if (Input.GetKeyDown(KeyCode.Alpha0 + i)) 
+                for (int i = 0; i < shapeFactories.Length; i++) 
                 {
-                    NewGame();
-                    StartCoroutine(LoadLevel(i));
-                    return;
+                    shapeFactories[i].FactoryId = i;
                 }
             }
         }
 
-        #endregion
-    }
-
-    private void FixedUpdate()
-    {
-        inGameUpdateLoop = true;
-        foreach (var t in _shapeList)
-        {
-            t.GameUpdate();
+        // Start is called before the first frame update
+        public void Start()
+        { 
+            _mainRandomState = Random.state;
+            _shapeList = new List<Shape>();
+            killList = new List<ShapeInstance>();
+            markAsDyingList = new List<ShapeInstance>();
+            NewGame();
+            StartCoroutine(LoadLevel(levelCount));
         }
 
-        inGameUpdateLoop = false;
-        _creationProgress += Time.deltaTime * CreationSpeed;
-        while (_creationProgress >= 1f) 
+        public void Update () 
         {
-            _creationProgress -= 1f;
-            GameLevel.Current.SpawnShape();
-        }
-        _destructionProgress += Time.deltaTime * DestructionSpeed;
-        while (_destructionProgress >= 1f) 
-        {
-            _destructionProgress -= 1f;
-            DestroyShape();
-        }
-        var limit = GameLevel.Current.PopulationLimit;
-        if (limit > 0) 
-        {
-            while (_shapeList.Count - dyingShapeCount > limit) 
+            #region all keyboard inputs
+            if (Input.GetKeyDown(createKey)) 
+            {
+                GameLevel.Current.SpawnShape();
+            }
+            else if (Input.GetKeyDown(newGameKey)) 
+            {
+                NewGame();
+                StartCoroutine(LoadLevel(_loadedLevelBuildIndex));
+            }
+            else if (Input.GetKeyDown(saveGame)) 
+            {
+                storage.Save(this, SaveVersion);
+            }
+            else if (Input.GetKeyDown(destroyKey))
             {
                 DestroyShape();
             }
-        }
-        
-        if (killList.Count > 0)
-        {
-            for (var index = 0; index < killList.Count; index++)
+            else if (Input.GetKeyDown(loadGame)) 
             {
-                var t = killList[index];
-                if (t.IsValid)
+                NewGame();
+                storage.Load(this);
+            }
+            else 
+            {
+                for (int i = 1; i <= levelCount; i++) 
                 {
-                    KillImmediately(t.Shape);
+                    if (Input.GetKeyDown(KeyCode.Alpha0 + i)) 
+                    {
+                        NewGame();
+                        StartCoroutine(LoadLevel(i));
+                        return;
+                    }
                 }
             }
 
-            killList.Clear();
+            #endregion
         }
-        
-        if (markAsDyingList.Count > 0)
+
+        private void FixedUpdate()
         {
-            foreach (var t in markAsDyingList)
+            inGameUpdateLoop = true;
+            foreach (var t in _shapeList)
             {
-                if (t.IsValid) 
+                t.GameUpdate();
+            }
+
+            inGameUpdateLoop = false;
+            _creationProgress += Time.deltaTime * CreationSpeed;
+            while (_creationProgress >= 1f) 
+            {
+                _creationProgress -= 1f;
+                GameLevel.Current.SpawnShape();
+            }
+            _destructionProgress += Time.deltaTime * DestructionSpeed;
+            while (_destructionProgress >= 1f) 
+            {
+                _destructionProgress -= 1f;
+                DestroyShape();
+            }
+            var limit = GameLevel.Current.PopulationLimit;
+            if (limit > 0) 
+            {
+                while (_shapeList.Count - dyingShapeCount > limit) 
                 {
-                    MarkAsDyingImmediately(t.Shape);
+                    DestroyShape();
                 }
             }
-
-            markAsDyingList.Clear();
-        }
-    }
-    private void NewGame()
-    {
-        Random.state = _mainRandomState;
-        int seed = Random.Range(0, int.MaxValue);
-        _mainRandomState = Random.state;
-        Random.InitState(seed);
-        creationSpeedSlider.value = CreationSpeed = 0;
-        destructionSpeedSlider.value = DestructionSpeed = 0;
-        foreach (var item in _shapeList)
-        { 
-            item.Recycle();
-        }
-        _shapeList.Clear();
-        dyingShapeCount = 0;
-
-    }
-    
-    public override void Save (GameDataWriter writer) 
-    {
-        writer.Write(_shapeList.Count);
-        writer.Write(Random.state);
-        writer.Write(CreationSpeed);
-        writer.Write(_creationProgress);
-        writer.Write(DestructionSpeed);
-        writer.Write(_destructionProgress);
-        writer.Write(_loadedLevelBuildIndex);
-        GameLevel.Current.Save(writer);
-        foreach (var t in _shapeList)
-        {
-            writer.Write(t.OriginFactory.FactoryId);
-            writer.Write(t.ShapeId);
-            writer.Write(t.MaterialId);
-            t.Save(writer);
-        }
-    }
-    
-    public override void Load (GameDataReader reader) 
-    {
-        int version = reader.Version;
-        if (version > SaveVersion) 
-        {
-            Debug.Log("Unsupported future save version " + version);
-            return;
-        }
-        StartCoroutine(LoadGame(reader));
-    }
-
-    void DestroyShape()
-    {
-        if (_shapeList.Count - dyingShapeCount <= 0) return;
-        var shape = _shapeList[Random.Range(dyingShapeCount, _shapeList.Count)];
-        if (destroyDuration <= 0f)
-        {
-            KillImmediately(shape);
-        }
-        else
-        {
-            shape.AddBehavior<DyingShapeBehavior>().Initialize(shape, destroyDuration);
-        }
-    }
-
-    public void AddShape (Shape shape)
-    {
-        shape.SaveIndex = _shapeList.Count;
-        _shapeList.Add(shape);
-    }
-    IEnumerator LoadLevel (int levelIndex) 
-    {
-        enabled = false;
-        if (_loadedLevelBuildIndex > 0) 
-            yield return SceneManager.UnloadSceneAsync(_loadedLevelBuildIndex);
         
-        yield return SceneManager.LoadSceneAsync(levelIndex, LoadSceneMode.Additive);
-        SceneManager.SetActiveScene(SceneManager.GetSceneByBuildIndex(levelIndex));
-        _loadedLevelBuildIndex = levelIndex;
-        enabled = true;
-    }
-    
-    IEnumerator LoadGame (GameDataReader reader) 
-    {
-        int version = reader.Version;
-        int count = version <= 0 ? -version : reader.ReadInt();
-
-        if (version >= 3) 
-        {
-            Random.State state = reader.ReadRandomState();
-            if (!reseedOnLoad) 
+            if (killList.Count > 0)
             {
-                Random.state = state;
+                for (var index = 0; index < killList.Count; index++)
+                {
+                    var t = killList[index];
+                    if (t.IsValid)
+                    {
+                        KillImmediately(t.Shape);
+                    }
+                }
+
+                killList.Clear();
             }
-            creationSpeedSlider.value = CreationSpeed = reader.ReadFloat();
-            _creationProgress = reader.ReadFloat();
-            destructionSpeedSlider.value = DestructionSpeed = reader.ReadFloat();
-            _destructionProgress = reader.ReadFloat();
-        }
-
-        yield return LoadLevel(version < 2 ? 1 : reader.ReadInt());
-        if (version >= 3) 
-        { 
-            GameLevel.Current.Load(reader);
-        }
-        for (int i = 0; i < count; i++) 
-        {
-            int factoryId = version >= 5 ? reader.ReadInt() : 0;
-            int shapeId = version > 0 ? reader.ReadInt() : 0;
-            int materialId = version > 0 ? reader.ReadInt() : 0;
-            Shape instance = shapeFactories[factoryId].Get(shapeId, materialId);
-            instance.Load(reader);
-        }
-        foreach (var t in _shapeList)
-        {
-            t.ResolveShapeInstances();
-        }
-    }
-    public Shape GetShape (int index) 
-    {
-        return _shapeList[index];
-    }
-
-    private void KillImmediately (Shape shape) 
-    {
-        var index = shape.SaveIndex;
-        shape.Recycle();
-        var lastIndex = _shapeList.Count - 1;
-        _shapeList[lastIndex].SaveIndex = index;
-        _shapeList[index] = _shapeList[lastIndex];
-        _shapeList.RemoveAt(lastIndex);
-    }
-    public void Kill (Shape shape) 
-    {
-        if (inGameUpdateLoop) 
-        {
-            killList.Add(shape);
-        }
-        else 
-        {
-            KillImmediately(shape);
-        }
-    }
-    
-    public bool IsMarkedAsDying (Shape shape) 
-    {
-        return shape.SaveIndex < dyingShapeCount;
-    }
-    public void MarkAsDying (Shape shape) 
-    {
-        if (inGameUpdateLoop) 
-        {
-            markAsDyingList.Add(shape);
-        }
-        else 
-        {
-            MarkAsDyingImmediately(shape);
-        }
-    }
-    private void MarkAsDyingImmediately (Shape shape) 
-    {
-        shape.Recycle();
-        int index = shape.SaveIndex;
-        if (index < dyingShapeCount && index < --dyingShapeCount) 
-        {
-            _shapeList[dyingShapeCount].SaveIndex = index;
-            _shapeList[index] = _shapeList[dyingShapeCount];
-            index = dyingShapeCount;
-        }
-        int lastIndex = _shapeList.Count - 1;
         
-        if (index < lastIndex) 
+            if (markAsDyingList.Count > 0)
+            {
+                foreach (var t in markAsDyingList)
+                {
+                    if (t.IsValid) 
+                    {
+                        MarkAsDyingImmediately(t.Shape);
+                    }
+                }
+
+                markAsDyingList.Clear();
+            }
+        }
+        private void NewGame()
         {
+            Random.state = _mainRandomState;
+            int seed = Random.Range(0, int.MaxValue);
+            _mainRandomState = Random.state;
+            Random.InitState(seed);
+            creationSpeedSlider.value = CreationSpeed = 0;
+            destructionSpeedSlider.value = DestructionSpeed = 0;
+            foreach (var item in _shapeList)
+            { 
+                item.Recycle();
+            }
+            _shapeList.Clear();
+            dyingShapeCount = 0;
+
+        }
+    
+        public override void Save (GameDataWriter writer) 
+        {
+            writer.Write(_shapeList.Count);
+            writer.Write(Random.state);
+            writer.Write(CreationSpeed);
+            writer.Write(_creationProgress);
+            writer.Write(DestructionSpeed);
+            writer.Write(_destructionProgress);
+            writer.Write(_loadedLevelBuildIndex);
+            GameLevel.Current.Save(writer);
+            foreach (var t in _shapeList)
+            {
+                writer.Write(t.OriginFactory.FactoryId);
+                writer.Write(t.ShapeId);
+                writer.Write(t.MaterialId);
+                t.Save(writer);
+            }
+        }
+    
+        public override void Load (GameDataReader reader) 
+        {
+            int version = reader.Version;
+            if (version > SaveVersion) 
+            {
+                Debug.Log("Unsupported future save version " + version);
+                return;
+            }
+            StartCoroutine(LoadGame(reader));
+        }
+
+        void DestroyShape()
+        {
+            if (_shapeList.Count - dyingShapeCount <= 0) return;
+            var shape = _shapeList[Random.Range(dyingShapeCount, _shapeList.Count)];
+            if (destroyDuration <= 0f)
+            {
+                KillImmediately(shape);
+            }
+            else
+            {
+                shape.AddBehavior<DyingShapeBehavior>().Initialize(shape, destroyDuration);
+            }
+        }
+
+        public void AddShape (Shape shape)
+        {
+            shape.SaveIndex = _shapeList.Count;
+            _shapeList.Add(shape);
+        }
+        IEnumerator LoadLevel (int levelIndex) 
+        {
+            enabled = false;
+            if (_loadedLevelBuildIndex > 0) 
+                yield return SceneManager.UnloadSceneAsync(_loadedLevelBuildIndex);
+        
+            yield return SceneManager.LoadSceneAsync(levelIndex, LoadSceneMode.Additive);
+            SceneManager.SetActiveScene(SceneManager.GetSceneByBuildIndex(levelIndex));
+            _loadedLevelBuildIndex = levelIndex;
+            enabled = true;
+        }
+    
+        IEnumerator LoadGame (GameDataReader reader) 
+        {
+            int version = reader.Version;
+            int count = version <= 0 ? -version : reader.ReadInt();
+
+            if (version >= 3) 
+            {
+                Random.State state = reader.ReadRandomState();
+                if (!reseedOnLoad) 
+                {
+                    Random.state = state;
+                }
+                creationSpeedSlider.value = CreationSpeed = reader.ReadFloat();
+                _creationProgress = reader.ReadFloat();
+                destructionSpeedSlider.value = DestructionSpeed = reader.ReadFloat();
+                _destructionProgress = reader.ReadFloat();
+            }
+
+            yield return LoadLevel(version < 2 ? 1 : reader.ReadInt());
+            if (version >= 3) 
+            { 
+                GameLevel.Current.Load(reader);
+            }
+            for (int i = 0; i < count; i++) 
+            {
+                int factoryId = version >= 5 ? reader.ReadInt() : 0;
+                int shapeId = version > 0 ? reader.ReadInt() : 0;
+                int materialId = version > 0 ? reader.ReadInt() : 0;
+                Shape instance = shapeFactories[factoryId].Get(shapeId, materialId);
+                instance.Load(reader);
+            }
+            foreach (var t in _shapeList)
+            {
+                t.ResolveShapeInstances();
+            }
+        }
+        public Shape GetShape (int index) 
+        {
+            return _shapeList[index];
+        }
+
+        private void KillImmediately (Shape shape) 
+        {
+            var index = shape.SaveIndex;
+            shape.Recycle();
+            var lastIndex = _shapeList.Count - 1;
             _shapeList[lastIndex].SaveIndex = index;
             _shapeList[index] = _shapeList[lastIndex];
+            _shapeList.RemoveAt(lastIndex);
         }
-        _shapeList.RemoveAt(lastIndex);
+        public void Kill (Shape shape) 
+        {
+            if (inGameUpdateLoop) 
+            {
+                killList.Add(shape);
+            }
+            else 
+            {
+                KillImmediately(shape);
+            }
+        }
+    
+        public bool IsMarkedAsDying (Shape shape) 
+        {
+            return shape.SaveIndex < dyingShapeCount;
+        }
+        public void MarkAsDying (Shape shape) 
+        {
+            if (inGameUpdateLoop) 
+            {
+                markAsDyingList.Add(shape);
+            }
+            else 
+            {
+                MarkAsDyingImmediately(shape);
+            }
+        }
+        private void MarkAsDyingImmediately (Shape shape) 
+        {
+            shape.Recycle();
+            int index = shape.SaveIndex;
+            if (index < dyingShapeCount && index < --dyingShapeCount) 
+            {
+                _shapeList[dyingShapeCount].SaveIndex = index;
+                _shapeList[index] = _shapeList[dyingShapeCount];
+                index = dyingShapeCount;
+            }
+            int lastIndex = _shapeList.Count - 1;
+        
+            if (index < lastIndex) 
+            {
+                _shapeList[lastIndex].SaveIndex = index;
+                _shapeList[index] = _shapeList[lastIndex];
+            }
+            _shapeList.RemoveAt(lastIndex);
+        }
     }
 }
-
-

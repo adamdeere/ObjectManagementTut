@@ -1,11 +1,15 @@
-﻿using UnityEngine;
+﻿using Save_scripts;
+using UnityEngine;
 
-public class RotatingObject : PersistableObject
+namespace Object_script
 {
-    [SerializeField] private Vector3 angularVelocity;
-
-    public void FixedUpdate () 
+    public class RotatingObject : PersistableObject
     {
-        transform.Rotate(angularVelocity * Time.deltaTime);
+        [SerializeField] private Vector3 angularVelocity;
+
+        public void FixedUpdate () 
+        {
+            transform.Rotate(angularVelocity * Time.deltaTime);
+        }
     }
 }

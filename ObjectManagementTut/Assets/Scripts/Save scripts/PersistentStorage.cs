@@ -1,29 +1,32 @@
 ﻿using System.IO;
 using UnityEngine;
 
-public class PersistentStorage : MonoBehaviour 
+namespace Save_scripts
 {
-
-    string _savePath;
-
-    public void Awake () 
+    public class PersistentStorage : MonoBehaviour 
     {
-        _savePath = Path.Combine(Application.persistentDataPath, "saveFile");
-    }
 
-    public void Save (PersistableObject o, int version) 
-    {
-        using (var writer = new BinaryWriter(File.Open(_savePath, FileMode.Create))) 
+        string _savePath;
+
+        public void Awake () 
         {
-            writer.Write(-version);
-            o.Save(new GameDataWriter(writer));
+            _savePath = Path.Combine(Application.persistentDataPath, "saveFile");
         }
-    }
 
-    public void Load (PersistableObject o) 
-    {
-        var data = File.ReadAllBytes(_savePath);
-        var reader = new BinaryReader(new MemoryStream(data));
-        o.Load(new GameDataReader(reader, -reader.ReadInt32()));
+        public void Save (PersistableObject o, int version) 
+        {
+            using (var writer = new BinaryWriter(File.Open(_savePath, FileMode.Create))) 
+            {
+                writer.Write(-version);
+                o.Save(new GameDataWriter(writer));
+            }
+        }
+
+        public void Load (PersistableObject o) 
+        {
+            var data = File.ReadAllBytes(_savePath);
+            var reader = new BinaryReader(new MemoryStream(data));
+            o.Load(new GameDataReader(reader, -reader.ReadInt32()));
+        }
     }
 }

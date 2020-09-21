@@ -1,33 +1,36 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public static class ShapeBehaviourPool<T> where T : ShapeBehaviour, new() 
-{  
-    static Stack<T> _stack = new Stack<T>();
+namespace Shape_behaviours
+{
+    public static class ShapeBehaviourPool<T> where T : ShapeBehaviour, new() 
+    {  
+        static Stack<T> _stack = new Stack<T>();
     
-    public static T Get () 
-    {
-        if (_stack.Count > 0) 
+        public static T Get () 
         {
-            T behavior = _stack.Pop();
+            if (_stack.Count > 0) 
+            {
+                T behavior = _stack.Pop();
 #if UNITY_EDITOR
-            behavior.IsReclaimed = false;
+                behavior.IsReclaimed = false;
 #endif
-            return behavior;
-        }
+                return behavior;
+            }
 #if UNITY_EDITOR
-        return ScriptableObject.CreateInstance<T>();
+            return ScriptableObject.CreateInstance<T>();
 #else
 		return new T();
 #endif
-    }
+        }
 
-    public static void Reclaim (T behavior) 
-    {
+        public static void Reclaim (T behavior) 
+        {
 #if UNITY_EDITOR
-        behavior.IsReclaimed = true;
+            behavior.IsReclaimed = true;
 #endif
 
-        _stack.Push(behavior);
+            _stack.Push(behavior);
+        }
     }
 }
